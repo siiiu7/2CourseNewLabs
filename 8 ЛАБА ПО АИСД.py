@@ -46,6 +46,9 @@ def combination():
     max_calories = 0
     optimal_combination = None
 
+    # Очистка текстового поля для ввода другого числа фруктов
+    result_text.delete('1.0', END)
+
     # Все возможные комбинации фруктов
     for combination in fruit_combinations:
         total_calories = sum(int(fruit.split(': ')[-1].split(' ')[0]) for fruit in combination)
