@@ -14,7 +14,12 @@ from tkinter import messagebox
 import random
 
 def combination():
-    num_fruits = int(txt.get())
+    try:
+        num_fruits = int(txt.get())
+    except ValueError:
+        messagebox.showerror('Ошибка', 'Введите число')
+        return
+
     fruits = []
 
     if num_fruits > 0:
