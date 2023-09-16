@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 
 window = Tk()
 window.title('Лабораторная работа № 9')
@@ -13,6 +14,13 @@ def toggle_password():
         password.config(show='')
     else:
         password.config(show='*')
+        
+# Закрытие
+def on_close():
+    if messagebox.askokcancel('Выход', 'Действительно хотите закрыть окно?'):
+        window.quit()
+
+window.protocol('WM_DELETE_WINDOW', on_close)
 
 left_frame = Frame(window, bd=2, bg='azure3', relief=SOLID, padx=10, pady=10)
 
