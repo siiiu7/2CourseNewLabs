@@ -32,7 +32,7 @@ def toggle_password():
 # Закрытие окна
 def on_close():
     if messagebox.askokcancel('Выход', 'Действительно хотите закрыть приложение?'):
-        window.quit()
+        window.destroy()
 
 window.protocol('WM_DELETE_WINDOW', on_close)
 
