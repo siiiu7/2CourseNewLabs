@@ -10,18 +10,30 @@ f = ('Times', 14)
 
 # Открытие нового окна
 def open_welcome_window():
-    welcome_window = Tk()
+    name_value = name.get()
+    password_value = password.get()
+
+    if not name_value or not password_value:
+        messagebox.showinfo('Ошибка', 'Пожалуйста, заполните все поля')
+        return
+
+    welcome_window = Toplevel(window)
     welcome_window.title('Успешная регистрация')
     welcome_window.geometry('400x300')
     welcome_window.config(bg='azure3')
 
-    name_value = name.get()
-
     welcome_label = Label(welcome_window, text=f'Добро пожаловать, {name_value}!', font=f, bg='azure3')
-    welcome_label.grid(row=0, column=0, pady=50, padx=50)
-    welcome_window.grid_rowconfigure(0, weight=1)
-    welcome_window.grid_columnconfigure(0, weight=1)
-    welcome_window.mainloop()
+    welcome_label.pack(pady=50)
+    welcome_window.transient(window)
+    welcome_window.grab_set()
+    window.wait_window(welcome_window)
+
+# Закрытие окна
+def on_close():
+    if messagebox.askokcancel('Выход', 'Действительно хотите закрыть приложение?'):
+        window.quit()
+
+window.protocol('WM_DELETE_WINDOW', on_close)
 
 # Обработчик для флажка
 def toggle_password():
@@ -29,12 +41,6 @@ def toggle_password():
         password.config(show='')
     else:
         password.config(show='*')
-# Закрытие окна
-def on_close():
-    if messagebox.askokcancel('Выход', 'Действительно хотите закрыть приложение?'):
-        window.destroy()
-
-window.protocol('WM_DELETE_WINDOW', on_close)
 
 left_frame = Frame(window, bd=2, bg='azure3', relief=SOLID, padx=10, pady=10)
 
