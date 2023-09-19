@@ -91,4 +91,4 @@ y_coordinate = int((screen_height / 2) - (window_height / 2))
 window.geometry(f'+{x_coordinate}+{y_coordinate}')
 
 window.mainloop()
-welcome_window.destroy(window)
+
