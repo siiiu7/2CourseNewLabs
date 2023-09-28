@@ -1,162 +1,118 @@
-import random
 from tkinter import *
-from functools import partial
 from tkinter import messagebox
-from copy import deepcopy
+import random
 
-sign = 0
+window = Tk()
+window.title('Крестики-нолики')
 
-global board
-board = [[" " for x in range(3)] for y in range(3)]
+game_run = True
+field = []
+cross_count = 0
 
-def winner(b, l):
-    return ((b[0][0] == l and b[0][1] == l and b[0][2] == l) or
-            (b[1][0] == l and b[1][1] == l and b[1][2] == l) or
-            (b[2][0] == l and b[2][1] == l and b[2][2] == l) or
-            (b[0][0] == l and b[1][0] == l and b[2][0] == l) or
-            (b[0][1] == l and b[1][1] == l and b[2][1] == l) or
-            (b[0][2] == l and b[1][2] == l and b[2][2] == l) or
-            (b[0][0] == l and b[1][1] == l and b[2][2] == l) or
-            (b[0][2] == l and b[1][1] == l and b[2][0] == l))
+# Начало игры
+def new_game():
+    for row in range(3):
+        for col in range(3):
+            field[row][col]['text'] = ' '
+            field[row][col]['background'] = 'azure3'
+    global game_run
+    game_run = True
+    global cross_count
+    cross_count = 0
 
+# Обработка нажатия по кнопке на поле
+def click(row, col):
+    if game_run and field[row][col]['text'] == ' ':
+        field[row][col]['text'] = 'X'
+        global cross_count
+        cross_count += 1
+        check_win('X')
 
-def isfree(i, j):
-    return board[i][j] == " "
+        if game_run and cross_count < 5:
+            computer_move()
+            check_win('O')
 
-def isfull():
-    flag = True
-    for i in board:
-        if (i.count(' ') > 0):
-            flag = False
-    return flag
+# Проверка начилия победы
+def check_win(smb):
+    for n in range(3):
+        check_line(field[n][0], field[n][1], field[n][2], smb)
+        check_line(field[0][n], field[1][n], field[2][n], smb)
+    check_line(field[0][0], field[1][1], field[2][2], smb)
+    check_line(field[2][0], field[1][1], field[0][2], smb)
+    if cross_count == 5:
+        messagebox.showwarning('Ничья', 'Игра закончилась вничью!')
+        global game_run
+        game_run = False
 
-def gameboard_pl(game_board, l1, l2):
-    global button
-    button = []
-    for i in range(3):
-        m = 3 + i
-        button.append(i)
-        button[i] = []
-        for j in range(3):
-            n = j
-            button[i].append(j)
-            get_t = partial(get_text, i, j, game_board, l1, l2)
-            button[i][j] = Button(
-                game_board, bd=5, command=get_t, height=4, width=8)
-            button[i][j].grid(row=m, column=n)
-    game_board.mainloop()
+# Проверка на победу комбинаций из трёх кнопок
+def check_line(a1, a2, a3, smb):
+    if a1['text'] == smb and a2['text'] == smb and a3['text'] == smb:
+        a1['background'] = a2['background'] = a3['background'] = 'green'
+        global game_run
+        game_run = False
+        if smb == 'X':
+            messagebox.showinfo('Победа', 'Вы победили!')
+        elif smb == 'O':
+            a1['background'] = a2['background'] = a3['background'] = 'red'
+            messagebox.showerror('Поражение', 'Компьютер победил!')
 
-def pc():
-    possiblemove = []
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            if board[i][j] == ' ':
-                possiblemove.append([i, j])
-    move = []
-    if possiblemove == []:
+# Проверка, можно ли выиграть, заполнив одну из ячеек
+def can_win(a1,a2,a3,smb):
+    res = False
+    if a1['text'] == smb and a2['text'] == smb and a3['text'] == ' ':
+        a3['text'] = 'O'
+        res = True
+    if a1['text'] == smb and a2['text'] == ' ' and a3['text'] == smb:
+        a2['text'] = 'O'
+        res = True
+    if a1['text'] == ' ' and a2['text'] == smb and a3['text'] == smb:
+        a1['text'] = 'O'
+        res = True
+    return res
+
+# Ходы компьютера
+def computer_move():
+    for n in range(3):
+        if can_win(field[n][0], field[n][1], field[n][2], 'O'):
+            return
+        if can_win(field[0][n], field[1][n], field[2][n], 'O'):
+            return
+    if can_win(field[0][0], field[1][1], field[2][2], 'O'):
         return
-    else:
-        for let in ['O', 'X']:
-            for i in possiblemove:
-                boardcopy = deepcopy(board)
-                boardcopy[i[0]][i[1]] = let
-                if winner(boardcopy, let):
-                    return i
-        corner = []
-        for i in possiblemove:
-            if i in [[0, 0], [0, 2], [2, 0], [2, 2]]:
-                corner.append(i)
-        if len(corner) > 0:
-            move = random.randint(0, len(corner) - 1)
-            return corner[move]
-        edge = []
-        for i in possiblemove:
-            if i in [[0, 1], [1, 0], [1, 2], [2, 1]]:
-                edge.append(i)
-        if len(edge) > 0:
-            move = random.randint(0, len(edge) - 1)
-            return edge[move]
+    if can_win(field[2][0], field[1][1], field[0][2], 'O'):
+        return
+    for n in range(3):
+        if can_win(field[n][0], field[n][1], field[n][2], 'X'):
+            return
+        if can_win(field[0][n], field[1][n], field[2][n], 'X'):
+            return
+    if can_win(field[0][0], field[1][1], field[2][2], 'X'):
+        return
+    if can_win(field[2][0], field[1][1], field[0][2], 'X'):
+        return
+    while True:
+        row = random.randint(0, 2)
+        col = random.randint(0, 2)
+        if field[row][col]['text'] == ' ':
+            field[row][col]['text'] = 'O'
+            break
 
-def get_text_pc(i, j, gb, l1, l2):
-    global sign
-    if board[i][j] == ' ':
-        if sign % 2 == 0:
-            l1.config(state=DISABLED)
-            l2.config(state=ACTIVE)
-            board[i][j] = "X"
-        else:
-            button[i][j].config(state=ACTIVE)
-            l2.config(state=DISABLED)
-            l1.config(state=ACTIVE)
-            board[i][j] = "O"
-        sign += 1
-        button[i][j].config(text=board[i][j])
-    x = True
-    if winner(board, "X"):
-        gb.destroy()
-        x = False
-        box = messagebox.showinfo("Победитель", "Вы выиграли")
-    elif winner(board, "O"):
-        gb.destroy()
-        x = False
-        box = messagebox.showinfo("Победитель", "Выиграл компьютер")
-    elif (isfull()):
-        gb.destroy()
-        x = False
-        box = messagebox.showinfo("Конец игры", "Победитель не выявлен")
-    if (x):
-        if sign % 2 != 0:
-            move = pc()
-            button[move[0]][move[1]].config(state=DISABLED)
-            get_text_pc(move[0], move[1], gb, l1, l2)
+# Поле для игры
+for row in range(3):
+    line = []
+    for col in range(3):
+        button = Button(window, text=' ', width=4, height=2, font=('Verdana', 20, 'bold'), bg='azure3', command=lambda row=row, col=col: click(row, col))
+        button.grid(row=row, column=col, sticky='nsew')
+        line.append(button)
+    field.append(line)
 
-def gameboard_pc(game_board, l1, l2):
-    global button
-    button = []
-    for i in range(3):
-        m = 3 + i
-        button.append(i)
-        button[i] = []
-        for j in range(3):
-            n = j
-            button[i].append(j)
-            get_t = partial(get_text_pc, i, j, game_board, l1, l2)
-            button[i][j] = Button(
-                game_board, bd=5, command=get_t, height=4, width=8)
-            button[i][j].grid(row=m, column=n)
-    game_board.mainloop()
+# Начало новой игры
+new_button = Button(window, text='Новая игра', command=new_game)
+new_button.grid(row=3, column=0, columnspan=3, sticky='nsew')
 
-def withpc(game_board):
-    game_board.destroy()
-    game_board = Tk()
-    game_board.title("Крестики-нолики")
-    l1 = Button(game_board, text="Игрок: X", width=10)
-    l1.grid(row=1, column=1)
-    l2 = Button(game_board, text="Компьютер: O",
-                width=10, state=DISABLED)
-    game_board.config(bg='azure3')
+# Отображение окна на середине экрана
+x = (window.winfo_screenwidth() - window.winfo_reqwidth()) / 2
+y = (window.winfo_screenheight() - window.winfo_reqheight()) / 2
+window.wm_geometry("+%d+%d" % (x, y))
 
-    l2.grid(row=2, column=1)
-    gameboard_pc(game_board, l1, l2)
-
-def play():
-    menu = Tk()
-    menu.geometry("300x100")
-    menu.title("Крестики-нолики")
-    wpc = partial(withpc, menu)
-    menu.resizable(False, False)
-
-    B1 = Button(menu, text="Одиночная игра", command=wpc,
-                activeforeground='black',
-                activebackground="cadet blue", bg="powder blue",
-                fg="black", width=50, font='summer', bd=8)
-
-    B3 = Button(menu, text="Выход", command=menu.quit, activeforeground='black',
-                activebackground="cadet blue", bg="powder blue", fg="black",
-                width=50, font='summer', bd=8)
-    B1.pack(side='top')
-    B3.pack(side='top')
-    menu.mainloop()
-
-if __name__ == '__main__':
-    play()
+window.mainloop()
