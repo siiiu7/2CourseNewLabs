@@ -39,7 +39,7 @@ for i in range(n):#заполнение матриц для дальнешей �
     Ftrans.append([0]*n)
     Proizv.append([0] * n)
     Sum.append([0] * n)
-print('Основная матрица')
+print('Основная матрица:')
 for i in range(len(F)):
     for j in range(len(F)):
         F[i][j] = randint(-10,10)
@@ -86,7 +86,7 @@ for i in range(len(F)):
         print("{:4d}".format(F[i][j]), end = "")
     print()
 print()
-print('A*F')
+print('A*F:')
 for mad1 in range(n):
     for mad2 in range(n):
         for mad3 in range(n):
@@ -98,25 +98,24 @@ for i in range(len(F)):
         print("{:4d}".format(Proizv[i][j]), end="")
     print()
 print()
-print('K*(A*F)')
+print('K*(A*F):')
 for i in range(len(F)):
     for j in range(len(F)):
         AKT[i][j] = k * Proizv[i][j]
         print("{:4d}".format(AKT[i][j]), end = "")
     print()
 print()
-print("K * F транспонированная")
+print("K * F транспонированная:")
 for i in range(len(F)):
     for j in range(len(F)):
         Ftrans[i][j] = k * F[j][i]
         print("{:4d}".format(Ftrans[i][j]), end="")
     print()
-print()
-print("К*(A*F)+ K* F транспонированная ")
+print()ф
+print("К*(A*F)+ K* F транспонированная:")
 for i in range(len(F)):
     for j in range(len(F)):
         Sum[i][j] = AKT[i][j] + Ftrans[i][j]
         print("{:4d}".format(Sum[i][j]), end="")
     print()
 print()
-
