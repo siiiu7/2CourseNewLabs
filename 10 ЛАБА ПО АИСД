@@ -2,10 +2,12 @@ import tkinter as tk
 from tkinter import messagebox
 import random
 
+#Пустое игровое поле
 board = [' ' for _ in range(9)]
 player = 'X'
 computer = 'O'
 
+#Все выигрышные комбинации
 winning_combinations = [
     [0, 1, 2],
     [3, 4, 5],
@@ -17,39 +19,38 @@ winning_combinations = [
     [2, 4, 6]
 ]
 
+#Проверка всех возможных комбинаций
 def is_winner(board, player):
-    for combination in winning_combinations:
-        if board[combination[0]] == board[combination[1]] == board[combination[2]] == player:
-            return combination
-    return False
+    return any(all(board[i] == player for i in combination) for combination in winning_combinations)
 
+#Проверка заполнения поля
 def is_board_full(board):
-    if ' ' in board:
-        return False
-    return True
+    return ' ' not in board
 
+#Обработка ходов пользователя и компьютера
 def make_move(move):
-    if board[move] == ' ':
-        board[move] = player
-        buttons[move].config(text=player)
-        if combination := is_winner(board, player):
-            highlight_winning_combination(combination, 'green')
-            messagebox.showinfo('Победа!', 'Вы победили!')
-            reset_game()
-        elif is_board_full(board):
-            messagebox.showwarning('Ничья!', 'Ничья!')
-            reset_game()
-        else:
-            computer_move = get_computer_move()
-            if computer_move is not None:
-                board[computer_move] = computer
-                buttons[computer_move].config(text=computer)
-                if combination := is_winner(board, computer):
-                    highlight_winning_combination(combination, 'red')
-                    messagebox.showerror('Поражение!', 'Компьютер победил!')
-                    reset_game()
+    if board[move] != ' ':
+        return
+    board[move] = player
+    buttons[move].config(text=player)
+    if is_winner(board, player):
+        highlight_winning_combination(player, 'green')
+        messagebox.showinfo('Победа!', 'Вы победили!')
+        reset_game()
+    elif is_board_full(board):
+        messagebox.showwarning('Ничья!', 'Вы сыграли вничью!')
+        reset_game()
+    else:
+        computer_move = get_computer_move()
+        if computer_move is not None:
+            board[computer_move] = computer
+            buttons[computer_move].config(text=computer)
+            if is_winner(board, computer):
+                highlight_winning_combination(computer, 'red')
+                messagebox.showerror('Поражение!', 'Компьютер победил!')
+                reset_game()
 
-
+#Ходы компьютера
 def get_computer_move():
     possible_moves = [i for i, x in enumerate(board) if x == ' ']
     for move in possible_moves:
@@ -62,40 +63,45 @@ def get_computer_move():
         board_copy[move] = player
         if is_winner(board_copy, player):
             return move
-    corners = [0, 2, 6, 8]
+    corners = [0, 2, 6, 8] #углы
     available_corners = [corner for corner in corners if corner in possible_moves]
-    if len(available_corners) > 0:
+    if available_corners:
         return random.choice(available_corners)
     if 4 in possible_moves:
         return 4
-    edges = [1, 3, 5, 7]
+    edges = [1, 3, 5, 7] #края
     available_edges = [edge for edge in edges if edge in possible_moves]
-    if len(available_edges) > 0:
+    if available_edges:
         return random.choice(available_edges)
     return None
 
+#Сброс игры после окончания ходов
 def reset_game():
     global board
     board = [' ' for _ in range(9)]
     for button in buttons:
         button.config(text=' ', bg='Azure3')
 
+#Вывод цвета на выигрышной комбинации 
+def highlight_winning_combination(player, color):
+    for combination in winning_combinations:
+        if all(board[i] == player for i in combination):
+            for index in combination:
+                buttons[index].config(bg=color)
+            break
 
-def highlight_winning_combination(combination, color):
-    for index in combination:
-        buttons[index].config(bg=color)
-
-root = tk.Tk()
-root.title('Крестики-нолики')
-root.resizable(False, False)
+window = tk.Tk()
+window.title('Крестики-нолики')
+window.resizable(False, False)
 buttons = []
-x = (root.winfo_screenwidth() - root.winfo_reqwidth()) / 2
-y = (root.winfo_screenheight() - root.winfo_reqheight()) / 2
-root.wm_geometry("+%d+%d" % (x, y))
+x = (window.winfo_screenwidth() - window.winfo_reqwidth()) / 2
+y = (window.winfo_screenheight() - window.winfo_reqheight()) / 2
+window.wm_geometry("+%d+%d" % (x, y))
 
+#Кнопки игрового поля
 for i in range(9):
-    button = tk.Button(root, text=' ', bg='Azure3', font=('Arial', 20), width=4, height=2, command=lambda move=i: make_move(move))
+    button = tk.Button(window, text=' ', bg='Azure3', font=('Arial', 20), width=4, height=2, command=lambda move=i: make_move(move))
     button.grid(row=i // 3, column=i % 3)
     buttons.append(button)
 
-root.mainloop()
+window.mainloop()
