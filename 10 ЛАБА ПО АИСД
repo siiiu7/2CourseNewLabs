@@ -5,7 +5,7 @@ import random
 #Пустое игровое поле
 board = [' ' for _ in range(9)]
 player = 'X'
-computer = 'O'
+computer = 'О'
 
 #Все выигрышные комбинации
 winning_combinations = [
@@ -38,6 +38,7 @@ def make_move(move):
         messagebox.showinfo('Победа!', 'Вы победили!')
         reset_game()
     elif is_board_full(board):
+        highlight_draw()
         messagebox.showwarning('Ничья!', 'Вы сыграли вничью!')
         reset_game()
     else:
@@ -82,13 +83,18 @@ def reset_game():
     for button in buttons:
         button.config(text=' ', bg='Azure3')
 
-#Вывод цвета на выигрышной комбинации 
+#Вывод цвета на выигрышной комбинации
 def highlight_winning_combination(player, color):
     for combination in winning_combinations:
         if all(board[i] == player for i in combination):
             for index in combination:
                 buttons[index].config(bg=color)
             break
+
+#Вывод желтого поля при ничье
+def highlight_draw():
+    for button in buttons:
+        button.config(bg='yellow')
 
 window = tk.Tk()
 window.title('Крестики-нолики')
