@@ -27,7 +27,7 @@ while True:
         for x in j:
             if x in marks:
                 j = j.replace(x, "")
-        res = re.findall(r'[4]{1}[0]{1}[0]{1}|[1-3]?[0-9 A-F]?[0-9 A-F]{1}|[0-9]+\.[0-9]+', j)
+        res = re.findall(r'[4]{1}[0]{1}[0]{1}|[1-3]?[0-9 A-F]?[0-9 A-F]{1}|[1-9]{1}\.[0-9]+|', j)
         if len(res) == 1 and len(j) == len(res[0]) and len(j)>0:
             if int(b[-1],16) > int(res[0],16):
                 if p == 1:
