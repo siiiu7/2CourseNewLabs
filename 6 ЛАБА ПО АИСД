@@ -1,0 +1,70 @@
+'''
+Лабораторная работа №6
+Задание состоит из двух частей. 
+1 часть – написать программу в соответствии со своим вариантом задания.
+2 часть – усложнить написанную программу, введя по своему усмотрению в условие минимум одно ограничение на характеристики объектов и целевую функцию для оптимизации решения.
+
+Вариант 24. У няни неограниченное количество  фруктов К разных названий (ф1,…фК). 
+Сформировать (вывести) все возможные варианты меню полдника (1 фрукт) для ребенка на неделю. 
+'''
+import random
+
+print('\nЧАСТЬ 1')
+num_fruits = int(input('Введите количество доступных фруктов (больше 7): '))
+
+while num_fruits < 6:
+    print('Извините, недостаточно фруктов для создания уникальных комбинаций на каждый день.')
+    num_fruits = int(input('Введите количество доступных фруктов: '))
+
+fruits = [f'ф{i + 1}' for i in range(num_fruits)]
+days = 7
+used_combinations = set()
+
+if num_fruits < days:
+    print('Извините, недостаточно фруктов для создания уникальных комбинаций на каждый день.')
+else:
+    week_fruits = []
+    for _ in range(7):
+        day_fruits = fruits.copy()
+        week_fruits.append(day_fruits)
+
+    fruit_combinations = []
+    for fruit1 in week_fruits[0]:
+        for fruit2 in week_fruits[1]:
+            for fruit3 in week_fruits[2]:
+                for fruit4 in week_fruits[3]:
+                    for fruit5 in week_fruits[4]:
+                        for fruit6 in week_fruits[5]:
+                            for fruit7 in week_fruits[6]:
+                                combination = [fruit1, fruit2, fruit3, fruit4, fruit5, fruit6, fruit7]
+                                fruit_combinations.append(combination)
+
+    for combination in fruit_combinations:
+        print(*combination, sep='-')
+
+
+print('\nЧАСТЬ 2')
+print()
+
+calories = {fruit: random.randint(50, 150) for fruit in fruits}
+num_weeks = int(input('Введите число недель, на которые будет составлено меню: '))
+
+for week in range(1, num_weeks + 1):
+    while True:
+        week_fruits = random.sample(fruits, days)
+        week_fruits_tuple = tuple(sorted(week_fruits))
+        if week_fruits_tuple not in used_combinations:
+            used_combinations.add(week_fruits_tuple)
+            break
+
+    total_calories = sum(calories[fruit] for fruit in week_fruits)
+    unique_fruits = set(week_fruits)
+
+    print(f"\nМеню на {week} неделю:")
+    for day, fruit in enumerate(week_fruits, start=1):
+        print(f"День {day}: {fruit} ({calories[fruit]} ккал)")
+    print(f"\nИтого за неделю: {total_calories} ккал")
+
+    max_calories = max(calories[fruit] for fruit in week_fruits)
+    max_calories_fruits = [fruit for fruit in week_fruits if calories[fruit] == max_calories]
+    print(f"\nСамый калорийный фрукт на недели {week}: {', '.join(max_calories_fruits)} ({max_calories} ккал)")
