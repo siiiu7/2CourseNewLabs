@@ -9,65 +9,72 @@
 '''
 import random
 
+# Функция для генерации всех возможных комбинаций
 def generate_combinations(fruits, combination_length, current_combination=[]):
+    # Если длина текущей комбинации равна желаемой длине комбинаций, возвращаем текущую комбинацию
     if len(current_combination) == combination_length:
         yield current_combination
     else:
+        # Иначе, для каждого фрукта в списке создаем новую комбинацию, добавляя этот фрукт к текущей комбинации
         for i in range(len(fruits)):
             fruit = fruits[i]
             yield from generate_combinations(fruits, combination_length, current_combination + [fruit])
 
+print('\nЧасть 1\n')
+
 num_fruits = int(input('Введите количество доступных фруктов: '))
 
-# Список всех фруктов
-fruits = [f'ф{i+1}' for i in range(num_fruits)]
+if num_fruits <= 0: 
+    print('Фруктов нет в наличии')
+else:
+    # Создание списка фруктов и недель
+    fruits = [f'ф{i+1}' for i in range(num_fruits)]
+    week_fruits = []
 
-print('\nЧасть 1')
+    # Создание списка меню на неделю из списка фруктов
+    for _ in range(7):
+        day_fruits = fruits.copy()
+        week_fruits.append(day_fruits)
 
-week_fruits = []
-for _ in range(7):
-    day_fruits = fruits.copy()
-    week_fruits.append(day_fruits)
-
-fruit_combinations = list(generate_combinations(fruits, 7))
-
-for combination in fruit_combinations:
-    print(*combination, sep='-')
+    # Генерация всех возможных комбинаций меню на неделю
+    fruit_combinations = list(generate_combinations(fruits, 7))
+    for combination in fruit_combinations:
+        print(*combination, sep='-')
 
 print('\nЧАСТЬ 2')
 print()
 
-
-# Создаём список фруктов
+# Получение количества неповторяющихся фруктов
 num_fruits = int(input('Введите количество различных фруктов (больше 7): '))
 while num_fruits <= 7:
     print('Извините, недостаточно фруктов для создания комбинаций на каждый день.')
     num_fruits = int(input('Введите количество доступных фруктов больше 7: '))
+
+# Создание списка фруктов
 fruits = ['ф' + str(i) for i in range(1, num_fruits + 1)]
 
-# Ваш код
-calories = {fruit: random.randint(50, 150) for fruit in fruits}
-num_weeks = int(input('Введите число недель, на которые будет составлено меню: '))
+calories = {fruit: random.randint(50, 150) for fruit in fruits} # Получение количества недель для создания меню
+num_weeks = int(input('Введите число недель, на которые будет составлено меню: ')) # Получение количества недель для создания меню
 days = 7
-fruit_combinations1 = []
+fruit_combinations1 = [] 
 
 for week in range(1, num_weeks + 1):
     while True:
+        # Генерация случайного меню на неделю с доступными фруктами
         week_fruits = random.sample(fruits, days)
         week_fruits_tuple = tuple(sorted(week_fruits))
         if week_fruits_tuple not in fruit_combinations1:
             fruit_combinations1.append(week_fruits_tuple)
             break
 
-    total_calories = sum(calories[fruit] for fruit in week_fruits)
-    unique_fruits = set(week_fruits)
+    total_calories = sum(calories[fruit] for fruit in week_fruits) # Вычисление общего количества калорий за неделю
 
     print(f"\nМеню на {week} неделю:")
     for day, fruit in enumerate(week_fruits, start=1):
         print(f"День {day}: {fruit} ({calories[fruit]} ккал)")
     print(f"\nИтого за неделю: {total_calories} ккал")
 
+    # Максимальная калорийность за неделю
     max_calories = max(calories[fruit] for fruit in week_fruits)
     max_calories_fruits = [fruit for fruit in week_fruits if calories[fruit] == max_calories]
     print(f"\nСамый калорийный фрукт на недели {week}: {', '.join(max_calories_fruits)} ({max_calories} ккал)")
-
