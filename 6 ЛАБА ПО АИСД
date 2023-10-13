@@ -22,30 +22,28 @@ print('\nЧасть 1\n')
 
 num_fruits = int(input('Введите количество доступных фруктов: '))
 
+# Проверка начилия фруктов
 if num_fruits <= 0:
-    print('Фруктов нет в наличии')
+    print('Фруктов нет в наличии.')
+    print()
+    print('\nЧасть 2')
+    print('Так как в первой части фруктов нет в наличии, вторая часть не может работать из-за их отсутствия.')
+    exit()
 else:
     # Создание списка фруктов и недель
     fruits = [f'ф{i+1}' for i in range(num_fruits)]
-    week_fruits = []
-
-    # Создание списка меню на неделю из списка фруктов
-    for _ in range(7):
-        day_fruits = fruits.copy()
-        week_fruits.append(day_fruits)
 
     # Генерация всех возможных комбинаций меню на неделю
-    fruit_combinations = list(generate_combinations(fruits, 7))
-    for combination in fruit_combinations:
+    all_possible_combinations = list(generate_combinations(fruits, 7))
+    for combination in all_possible_combinations:
         print(*combination, sep='-')
 
-print('\nЧАСТЬ 2\n')
+print('\nЧасть 2\n')
 
-while True:
-    num_fruits = int(input('Введите количество различных фруктов (больше 7): '))
-    if num_fruits > 7:
-        break
-    print("Извините, недостаточно фруктов для создания комбинаций на каждый день.")
+
+if num_fruits < 7:
+    print("Извините, недостаточно фруктов для создания комбинаций из неповторяющихся фруктов на каждый день.")
+    exit()
 
 fruits = ['ф' + str(i) for i in range(1, num_fruits + 1)]
 calories = {fruit: random.randint(50, 150) for fruit in fruits}
@@ -56,14 +54,8 @@ while True:
         break
     print("Введено некорректное количество недель. Пожалуйста, введите число больше нуля.")
 
-fruit_combinations1 = []
 for week in range(1, num_weeks + 1):
-    while True:
-        week_fruits = random.sample(fruits, 7)
-        week_fruits_tuple = tuple(sorted(week_fruits))
-        if week_fruits_tuple not in fruit_combinations1:
-            fruit_combinations1.append(week_fruits_tuple)
-            break
+    week_fruits = random.sample(fruits, 7)  # Выбираем уникальные фрукты для каждой недели
     total_calories = sum(calories[fruit] for fruit in week_fruits)
 
     print(f"\nМеню на {week} неделю:")
