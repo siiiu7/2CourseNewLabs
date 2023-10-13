@@ -11,11 +11,9 @@ import random
 
 # Функция для генерации всех возможных комбинаций
 def generate_combinations(fruits, combination_length, current_combination=[]):
-    # Если длина текущей комбинации равна желаемой длине комбинаций, возвращаем текущую комбинацию
     if len(current_combination) == combination_length:
         yield current_combination
     else:
-        # Иначе, для каждого фрукта в списке создаем новую комбинацию, добавляя этот фрукт к текущей комбинации
         for i in range(len(fruits)):
             fruit = fruits[i]
             yield from generate_combinations(fruits, combination_length, current_combination + [fruit])
@@ -44,7 +42,6 @@ else:
 print('\nЧАСТЬ 2')
 print()
 
-# Получение количества неповторяющихся фруктов
 num_fruits = int(input('Введите количество различных фруктов (больше 7): '))
 while num_fruits <= 7:
     print('Извините, недостаточно фруктов для создания комбинаций на каждый день.')
