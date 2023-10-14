@@ -6,29 +6,35 @@
 Вариант 24. У няни неограниченное количество  фруктов К разных названий (ф1,…фК).
 Сформировать (вывести) все возможные варианты меню полдника (1 фрукт) для ребенка на неделю.
 '''
-
 import random
 
+# Имя и калории
 class Fruit:
     def __init__(self, name, calories):
         self.name = name
         self.calories = calories
 
+# Меню из фруктов
 class Menu:
     def __init__(self, fruits):
         self.fruits = fruits
 
+    # Возвращает сумму калорий всех фруктов в меню
     def total_calories(self):
         return sum(fruit.calories for fruit in self.fruits)
 
+    # Возвращает фрукт с максимальным количеством калорий в меню
     def max_calories(self):
         max_cal = max(self.fruits, key = lambda x: x.calories)
         return max_cal
 
+# Набор различных фруктов
 class Product:
+    # Каждый фрукт инициализируется с случайным именем и случайным количеством калорий
     def __init__(self, num_fruits):
         self.fruits = [Fruit('ф' + str(i), random.randint(50, 150)) for i in range(1, num_fruits + 1)]
 
+    # Меню для ввденного количества недель
     def generate_menu(self, num_weeks):
         for week in range(1, num_weeks + 1):
             week_fruits = random.sample(self.fruits, 7)
@@ -38,22 +44,10 @@ class Product:
             for day, fruit in enumerate(week_menu.fruits, start=1):
                 print(f"День {day}: {fruit.name} ({fruit.calories} ккал)")
 
-            print(f"\nИтого за неделю: {week_menu.total_calories()} ккал")
+            print(f"\nДумал за неделю: {week_menu.total_calories()} ккал")
 
             max_calories_fruit = week_menu.max_calories()
             print(f"\nСамый калорийный фрукт на недели {week}: {max_calories_fruit.name} ({max_calories_fruit.calories} ккал)")
-
-while True:
-    num_fruits = int(input('Введите количество различных фруктов (больше 7): '))
-    if num_fruits >= 7:
-        break
-    print("Недостаточно фруктов для создания комбинаций из невпоторяющих фруктов на каждый день.")
-
-while True:
-    num_weeks = int(input('Введите число недель, на которые будет составлено меню: '))
-    if num_weeks > 0:
-        break
-    print("Введено некорректное количество недель. Пожалуйста, введите число больше нуля.")
 
 product = Product(num_fruits)
 product.generate_menu(num_weeks)
