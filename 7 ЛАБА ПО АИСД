@@ -8,7 +8,7 @@
 '''
 import random
 
-class Product:
+class Fruit:
     def __init__(self, num_fruits):
         self.num_fruits = num_fruits
         self.fruits = ['ф' + str(i) for i in range(1, self.num_fruits + 1)]
@@ -71,7 +71,7 @@ while True:
         break
     print("Введено некорректное количество недель. Пожалуйста, введите число больше нуля.")
 
-product = Product(num_fruits)
+product = Fruit(num_fruits)
 menu_generator = GenerationMenu(num_weeks, product.fruits, product.calories)
 menu_generator.get_week_menu()
 
