@@ -8,46 +8,73 @@
 '''
 import random
 
-# Имя и калории
-class Fruit:
-    def __init__(self, name, calories):
-        self.name = name
+class Product:
+    def __init__(self, num_fruits):
+        self.num_fruits = num_fruits
+        self.fruits = ['ф' + str(i) for i in range(1, self.num_fruits + 1)]
+        self.calories = self.generate_calories_dict()
+
+    def generate_calories_dict(self):
+        return {fruit: random.randint(40, 140) for fruit in self.fruits}
+
+class GenerationMenu:
+    def __init__(self, num_weeks, fruits, calories):
+        self.num_weeks = num_weeks
+        self.fruit_combinations = []
+        self.fruits = fruits
         self.calories = calories
 
-# Меню из фруктов
-class Menu:
-    def __init__(self, fruits):
-        self.fruits = fruits
+    def get_week_menu(self):
+        days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
+        for week in range(1, self.num_weeks + 1):
+            while True:
+                week_fruits = random.sample(self.fruits, 7)
+                week_fruits_tuple = tuple(sorted(week_fruits))
+                if week_fruits_tuple not in self.fruit_combinations:
+                    self.fruit_combinations.append(week_fruits_tuple)
+                    break
+            print(f"\nНеделя {week}:")
+            for day, fruit in zip(days, week_fruits):
+                print(f" {day}: {fruit} - {self.calories[fruit]}")
+        return self.fruit_combinations
 
-    # Возвращает сумму калорий всех фруктов в меню
-    def total_calories(self):
-        return sum(fruit.calories for fruit in self.fruits)
+class MaxCal:
+    def __init__(self, week_fruits, calories):
+        self.week_fruits = week_fruits
+        self.calories = calories
+        self.total_calories = self.calculate_total_calories()
+        self.max_calories = self.calculate_max_calories()
+        self.max_calories_fruits = self.calculate_max_calories_fruits()
 
-    # Возвращает фрукт с максимальным количеством калорий в меню
-    def max_calories(self):
-        max_cal = max(self.fruits, key = lambda x: x.calories)
-        return max_cal
+    def calculate_total_calories(self):
+        return sum(self.calories[fruit] for fruit in self.week_fruits)
 
-# Набор различных фруктов
-class Product:
-    # Каждый фрукт инициализируется с случайным именем и случайным количеством калорий
-    def __init__(self, num_fruits):
-        self.fruits = [Fruit('ф' + str(i), random.randint(50, 150)) for i in range(1, num_fruits + 1)]
+    def calculate_max_calories(self):
+        return max(self.calories[fruit] for fruit in self.week_fruits)
 
-    # Меню для ввденного количества недель
-    def generate_menu(self, num_weeks):
-        for week in range(1, num_weeks + 1):
-            week_fruits = random.sample(self.fruits, 7)
-            week_menu = Menu(week_fruits)
+    def calculate_max_calories_fruits(self):
+        max_calories = self.calculate_max_calories()
+        return [fruit for fruit in self.week_fruits if self.calories[fruit] == max_calories]
 
-            print(f"\nМеню на неделю {week}:")
-            for day, fruit in enumerate(week_menu.fruits, start=1):
-                print(f"День {day}: {fruit.name} ({fruit.calories} ккал)")
+    def get_calories_info(self):
+        return self.total_calories, self.max_calories, self.max_calories_fruits
 
-            print(f"\nДумал за неделю: {week_menu.total_calories()} ккал")
+while True:
+    num_fruits = int(input('Введите количество различных фруктов (больше 7): '))
+    if num_fruits > 7:
+        break
+    print("Извините, слишком мало фруктов для создания разнообразного меню на все дни недели.")
 
-            max_calories_fruit = week_menu.max_calories()
-            print(f"\nСамый калорийный фрукт на недели {week}: {max_calories_fruit.name} ({max_calories_fruit.calories} ккал)")
+while True:
+    num_weeks = int(input('Введите число недель, на которые будет составлено меню: '))
+    if num_weeks > 0:
+        break
+    print("Введено некорректное количество недель. Пожалуйста, введите число больше нуля.")
 
 product = Product(num_fruits)
-product.generate_menu(num_weeks)
+menu_generator = GenerationMenu(num_weeks, product.fruits, product.calories)
+menu_generator.get_week_menu()
+
+maxCal = MaxCal(menu_generator.fruit_combinations[0], product.calories)
+print(f"Общее количество калорий за неделю: {maxCal.get_calories_info()[0]}")
+print(f"Самый калорийный фрукт за неделю: {maxCal.get_calories_info()[2]} - {maxCal.get_calories_info()[1]}")
