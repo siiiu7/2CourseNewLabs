@@ -57,7 +57,6 @@ class MaxCal:
         max_calories = self.calculate_max_calories()
         return [fruit for fruit in self.week_fruits if self.calories[fruit] == max_calories]
 
-
 while True:
     num_fruits = int(input('Введите количество различных фруктов (больше 7): '))
     if num_fruits > 7:
