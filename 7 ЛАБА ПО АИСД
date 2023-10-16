@@ -8,7 +8,17 @@
 '''
 import random
 
-# Класс свойств фруктов: название и калорийность
+def get_combinations(sequence, comb_length):
+    if not sequence:
+        return []
+    elif comb_length == 0:
+        return [[]]
+    else:
+        head = sequence[:1]
+        tail = sequence[1:]
+        new_comb = [head + pair for pair in get_combinations(tail, comb_length - 1)]
+        return new_comb + get_combinations(tail, comb_length)
+
 class Fruit:
     def __init__(self, num_fruits):
         self.num_fruits = num_fruits
@@ -18,39 +28,34 @@ class Fruit:
     def generate_calories_dict(self):
         return {fruit: random.randint(40, 140) for fruit in self.fruits}
 
-# Класс для генерации меню 
 class GenerationMenu:
     def __init__(self, num_weeks, fruits, calories):
         self.num_weeks = num_weeks
-        self.fruit_combinations = []
         self.fruits = fruits
         self.calories = calories
+        self.unique_week_combinations = []
+        for i in range(7, len(fruits) + 1):
+            self.unique_week_combinations += get_combinations(self.fruits, i)
+        random.shuffle(self.unique_week_combinations) # shuffle the combinations
 
     def get_week_menu(self):
-        days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
-        for week in range(1, self.num_weeks + 1):
-            while True:
-                week_fruits = random.sample(self.fruits, 7)
-                week_fruits_tuple = tuple(sorted(week_fruits))
-                if week_fruits_tuple not in self.fruit_combinations:
-                    self.fruit_combinations.append(week_fruits_tuple)
-                    break
-            print(f"\nНеделя {week}:")
-            for day, fruit in zip(days, week_fruits):
-                print(f" {day}: {fruit} - {self.calories[fruit]}")
-        return self.fruit_combinations
+        days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота',
+                'Воскресенье']
+        for week_num in range(1, self.num_weeks + 1):
+            for week_fruits_list in self.unique_week_combinations:
+                if len(week_fruits_list) == 7:
+                    print(f"\nНеделя {week_num}:")
+                    for day, fruit in zip(days, week_fruits_list):
+                        print(f" {day}: {fruit} - {self.calories[fruit]} калл.")
+                    max_cal = MaxCal(week_fruits_list, self.calories)
+                    print(f"Самый калорийный фрукт за неделю: "
+                          f"{max_cal.calculate_max_calories_fruits()} - "
+                          f"{max_cal.calculate_max_calories()} калл.")
 
-# Класс для нахождения максимальной калорийности, общей калорийности в неделю и фрукта с максимальной калорийностью
 class MaxCal:
     def __init__(self, week_fruits, calories):
         self.week_fruits = week_fruits
         self.calories = calories
-        self.total_calories = self.calculate_total_calories()
-        self.max_calories = self.calculate_max_calories()
-        self.max_calories_fruits = self.calculate_max_calories_fruits()
-
-    def calculate_total_calories(self):
-        return sum(self.calories[fruit] for fruit in self.week_fruits)
 
     def calculate_max_calories(self):
         return max(self.calories[fruit] for fruit in self.week_fruits)
@@ -58,9 +63,6 @@ class MaxCal:
     def calculate_max_calories_fruits(self):
         max_calories = self.calculate_max_calories()
         return [fruit for fruit in self.week_fruits if self.calories[fruit] == max_calories]
-
-    def get_calories_info(self):
-        return self.total_calories, self.max_calories, self.max_calories_fruits
 
 while True:
     num_fruits = int(input('Введите количество различных фруктов (больше 7): '))
@@ -78,6 +80,4 @@ product = Fruit(num_fruits)
 menu_generator = GenerationMenu(num_weeks, product.fruits, product.calories)
 menu_generator.get_week_menu()
 
-maxCal = MaxCal(menu_generator.fruit_combinations[0], product.calories)
-print(f"Общее количество калорий за неделю: {maxCal.get_calories_info()[0]}")
-print(f"Самый калорийный фрукт за неделю: {maxCal.get_calories_info()[2]} - {maxCal.get_calories_info()[1]}")
+
