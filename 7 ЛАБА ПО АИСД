@@ -1,13 +1,14 @@
 '''
 Лабораторная работа №7
 Требуется для своего варианта второй части л.р. №6 (усложненной программы) написать объектно-ориентированную реализацию.
-В программе должны быть реализованы минимум один класс, три атрибута, два метода
+В программе должны быть реализованы минимум один класс, три атрибута, два метода.
 
 Вариант 24. У няни неограниченное количество  фруктов К разных названий (ф1,…фК).
 Сформировать (вывести) все возможные варианты меню полдника (1 фрукт) для ребенка на неделю.
 '''
 import random
 
+# Класс свойств фруктов: название и калорийность
 class Fruit:
     def __init__(self, num_fruits):
         self.num_fruits = num_fruits
@@ -17,6 +18,7 @@ class Fruit:
     def generate_calories_dict(self):
         return {fruit: random.randint(40, 140) for fruit in self.fruits}
 
+# Класс для генерации меню 
 class GenerationMenu:
     def __init__(self, num_weeks, fruits, calories):
         self.num_weeks = num_weeks
@@ -38,6 +40,7 @@ class GenerationMenu:
                 print(f" {day}: {fruit} - {self.calories[fruit]}")
         return self.fruit_combinations
 
+# Класс для нахождения максимальной калорийности, общей калорийности в неделю и фрукта с максимальной калорийностью
 class MaxCal:
     def __init__(self, week_fruits, calories):
         self.week_fruits = week_fruits
