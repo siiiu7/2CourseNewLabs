@@ -31,7 +31,7 @@ class GenerationMenu:
         self.num_weeks = num_weeks
         self.fruits = fruits
         self.calories = calories
-        self.unique_combinations = get_random_combinations(self.fruits, 7, 1000)  # choose 7 fruits for 7 days of week
+        self.unique_combinations = get_random_combinations(self.fruits, 7, 1000)
 
     def get_week_menu(self):
         days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
