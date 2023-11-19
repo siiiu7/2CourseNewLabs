@@ -9,6 +9,7 @@ import re
 
 max_hex = '0'
 count = 0
+hex_numbers = []
 
 slov = {
     0: 'ноль', 1: 'один', 2: 'два', 3: 'три', 4: 'четыре', 5: 'пять', 6: 'шесть',
@@ -28,20 +29,25 @@ with open("text.txt", 'r') as file:
             try:
                 val = float.fromhex(num)
                 if val <= 1024:
-                    print(num, end=" ")
+                    hex_numbers.append(num)
                     count += 1
                     if val > float.fromhex(max_hex):
                         max_hex = num
             except (TypeError, ValueError):
                 pass
 
+# Сортировка последовательности чисел в обратном порядке 
+hex_numbers.sort(key=float.fromhex, reverse=True)
+
 if max_hex == '0':
     print('В файле нет чисел, удовлетворяющих условию')
 else:
-    print('\nКоличество:', count)
+    print('\nСписок последовательности по убыванию:', ' '.join(hex_numbers))
+    print('Количество:', count)
     print('Максимальное число:', end=' ')
     for char in max_hex:
         for key in slov:
             if str(key) == char.upper():
                 print(slov[key], end=' ')
                 break
+
