@@ -8,12 +8,15 @@
 import random as ran
 import numpy as np
 import decimal as de
-#------------------------- Создание матрицы -------------------------
+
+# Создание матрицы
 k = ran.randint(2,10)
 x = np.random.uniform(-1, 1, (k, k))
-#------------------------- Ввод t -----------------------------------
+
+# Ввод t
 t = input("Введите число t от 1 до 100: ")
-#------------- Проверка t на правльность ввода ----------------------
+
+# Проверка t на правильность ввода
 while True:
     if t.isdigit() == True and int(t) >1 and  int(t) <=100:
         t = int(t)
@@ -22,18 +25,21 @@ while True:
         t = input("t не является числом, введите его ещё раз: ")
     elif int(t) < 1 or int(t) >100:
         t = input("Число t меньше единицы или больше ста, введите его ещё раз: ")
-n = 1 # номер слагаемого
-n_factotial = 1 # факториал
-znak = 1 # знак
-rezultat = de.Decimal(0) # резуьтат
-matic = x # матрица
-de.getcontext().prec = t+60 # установка точности
-fun = de.Decimal(0) # decimal для переменной
-while abs(rezultat.as_tuple().exponent) < t: # цикл while пока число знаков после запятой не будет больше или равно t
-    fun = de.Decimal(-1*np.linalg.det(matic* n_factotial)) * de.Decimal((1/n_factotial)) # вычисление слагаемого
-    rezultat = rezultat + (znak * fun) # прибавление результата с учётом знака
-    n += 1 # следующий номер слагаемого
-    n_factotial *= n # новый факториал с учётом нового номера слагаемого
-    znak = -znak # изменение знака
+
+n = 0  # номер слагаемого
+n_factotial = 1  # факториал
+znak = 1  # знак
+rezultat = de.Decimal(0)  # результат
+matic = x  # матрица
+de.getcontext().prec = t + 60  # установка точности
+fun = de.Decimal(0)  # decimal для переменной
+
+while abs(rezultat.as_tuple().exponent) < t:
+    fun = abs(de.Decimal(n_factotial) * de.Decimal(np.math.pow(x, 3*n_factotial))/de.Decimal(np.math.factorial(3*n_factotial)))
+    rezultat += (znak * fun)
+    n += 1
+    n_factotial += 1
+    znak = -znak
+
 print(x) # вывод матрицы
-print(f"Результат: {rezultat:.{t}f}")# вывод результата
+print(f"Результат: {rezultat:.{t}f}")
