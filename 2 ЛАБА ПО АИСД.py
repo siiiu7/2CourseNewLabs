@@ -1,10 +1,3 @@
-'''
-Лабораторная работа № 2
-Вариант 24
-Шеснадцатиричные числа, не превышающие 1024_10 расположенные в порядке убывания.
-Для каждой такой последовательности максимальное число вывести прописью.
-'''
-
 import re
 
 max_hex = '0'
@@ -22,21 +15,21 @@ pattern = re.compile(r'\b(?:[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]*)?|\.[0-9A-Fa-f]+)(?:[P
 
 with open("text.txt", 'r') as file:
     for line in file:
-        for match in pattern.finditer(line):
-            num = match.group()
+        for match in pattern.finditer(line): # Поиск всех непересекающихся совпадений в шаблоне
+            num = match.group() # Взятие всей строки
             if num[0] == '0' and len(num) > 1:
                 continue
             try:
-                val = float.fromhex(num)
+                val = float.fromhex(num) # Строка, содержащая шестнадцатеричные числа
                 if val <= 1024:
                     hex_numbers.append(num)
                     count += 1
-                    if val > float.fromhex(max_hex):
+                    if val > float.fromhex(max_hex): # Строка, содержащая шестнадцатеричные числа
                         max_hex = num
             except (TypeError, ValueError):
                 pass
 
-# Сортировка последовательности чисел в обратном порядке 
+# Сортировка последовательности чисел в обратном порядке
 hex_numbers.sort(key=float.fromhex, reverse=True)
 
 if max_hex == '0':
