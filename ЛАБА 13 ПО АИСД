@@ -1,0 +1,38 @@
+'''
+Лабораторная работа №13
+1.Прочитать в виде списков набор данных titanic.csv, взятый из открытых источников: 
+https://tproger.ru/translations/the-best-datasets-for-machine-learning-and-data-science/ 
+https://vc.ru/ml/150241-15-proektov-dlya-razvitiya-navykov-raboty-s-mashinnym-obucheniem 
+https://archive.ics.uci.edu/ml/index.php 
+https://habr.com/ru/company/edison/blog/480408/ 
+https://www.kaggle.com/datasets/ 
+2.Для прочитанного набора выполнить обработку в соответствии со своим вариантом. Библиотекой pandas пользоваться нельзя. 
+
+Вариант 24.
+Определить количество мужчин на борту минимального и максимального возраста и сколько из них выжило
+'''
+import csv
+
+with open('titanic.csv', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
+
+    # Переменные для хранения информации о минимальном и максимальном возрасте мужчин на борту
+    min_age = float('inf')
+    max_age = float('-inf')
+    min_survived = 0
+    max_survived = 0
+
+    # Проход по всем данным
+    for row in reader:
+        if row['Sex'] == 'male' and row['Age'] != '':
+            age = float(row['Age'])
+            if age < min_age:
+                min_age = age
+                min_survived = int(row['Survived'])
+            if age > max_age:
+                max_age = age
+                max_survived = int(row['Survived'])
+
+    # Вывод результатов
+    print(f"Минимальный возраст мужчин на борту: {min_age}, выжило: {min_survived}")
+    print(f"Максимальный возраст мужчин на борту: {max_age}, выжило: {max_survived}")
