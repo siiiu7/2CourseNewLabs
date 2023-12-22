@@ -11,44 +11,45 @@ https://www.kaggle.com/datasets/
 Вариант 24.
 Определить количество мужчин на борту минимального и максимального возраста и сколько из них выжило.
 """
+"""
+Лабораторная работа №13
+1.Прочитать в виде списков набор данных titanic.csv, взятый из открытых источников:
+https://tproger.ru/translations/the-best-datasets-for-machine-learning-and-data-science/
+https://vc.ru/ml/150241-15-proektov-dlya-razvitiya-navykov-raboty-s-mashinnym-obucheniem
+https://archive.ics.uci.edu/ml/index.php
+https://habr.com/ru/company/edison/blog/480408/
+https://www.kaggle.com/datasets/
+2.Для прочитанного набора выполнить обработку в соответствии со своим вариантом. Библиотекой pandas пользоваться нельзя.
+
+Вариант 24.
+Определить количество мужчин на борту минимального и максимального возраста и сколько из них выжило.
+"""
 import csv
 
-# Инициализация переменных
 min_age = float('inf')
 max_age = float('-inf')
-min_age_count = 0
-max_age_count = 0
-min_age_survived_men = 0
-max_age_survived_men = 0
+age_counts = {}
+survived_counts = {}
 
-# Перебор данных для нахождения минимального и максимального возраста у мужчин
 with open('titanic.csv', 'r') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
-        sex = row['Sex']
-        try:
-            age = int(row['Age'])
-        except ValueError:
-            age = float(row['Age'])
-        survived = int(row['Survived'])
+        if row['Sex'] == 'male':
+            try:
+                age = float(row['Age'])
+                survived = int(row['Survived'])
 
-        if sex == 'male':
-            if age == min_age:
-                min_age_count += 1
-                if survived == 1:
-                    min_age_survived_men += 1
-            elif age == max_age:
-                max_age_count += 1
-                if survived == 1:
-                    max_age_survived_men += 1
-            elif age < min_age:
-                min_age = age
-                min_age_count = 1
-                min_age_survived_men = survived
-            elif age > max_age:
-                max_age = age
-                max_age_count = 1
-                max_age_survived_men = survived
+                # Обновление минимальный и максимальный возраст
+                min_age = min(min_age, age)
+                max_age = max(max_age, age)
 
-print(f"Минимальный возраст мужчин на борту: {min_age}, количество: {min_age_count}, выжило: {min_age_survived_men}")
-print(f"Максимальный возраст мужчин на борту: {max_age}, количество: {max_age_count}, выжило: {max_age_survived_men}")
+                # Учитывание количество людей по возрастам и количество выживших
+                age_counts[age] = age_counts.get(age, 0) + 1
+                if survived:
+                    survived_counts[age] = survived_counts.get(age, 0) + 1
+
+            except ValueError:  # выражение обработки неправильных или пустых значений
+                continue
+
+print(f"Минимальный возраст мужчин на борту: {min_age}, количество: {age_counts[min_age]}, выжило: {survived_counts.get(min_age, 0)}")
+print(f"Максимальный возраст мужчин на борту: {max_age}, количество: {age_counts[max_age]}, выжило: {survived_counts.get(max_age, 0)}")
