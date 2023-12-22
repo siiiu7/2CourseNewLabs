@@ -27,13 +27,13 @@ while True:
     elif int(t) < 1 or int(t) > 100:  # Если введенное число не попадает в нужный диапазон
         t = input("Число t меньше единицы или больше ста, введите его ещё раз: ")
 
-n = 3  # Переменной для номера слагаемого
-n_factorial = math.factorial(n)  # Переменной факториала
-znak = 1  # Ппеременной для знака
-rezultat = de.Decimal(0)  # Ппеременной для результата как Decimal
-matic = x  # Переменной случайной матрицы x
+n = 3  # Переменная для номера слагаемого
+n_factorial = math.factorial(n)  # Переменная факториала
+znak = 1  # Переменная для знака
+rezultat = de.Decimal(0)  # Переменная для результата как Decimal
+matic = x  # Переменная случайной матрицы x
 de.getcontext().prec = t + 60  # Установка точности для вычислений
-fun = de.Decimal(0)  # Ппеременной fun в виде Decimal для вычисления
+fun = de.Decimal(0)  # Переменная fun в виде Decimal для вычисления
 
 while abs(rezultat.as_tuple().exponent) < t:  # Цикл while, выполняемый, пока число знаков после запятой результата не будет больше числа t
     fun = de.Decimal(1 * np.linalg.det(np.multiply(matic, math.factorial(3 * n)))) * de.Decimal((1 / math.factorial(3 * n)))  # Вычисление слагаемого
