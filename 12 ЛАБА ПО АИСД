@@ -36,7 +36,7 @@ de.getcontext().prec = t + 60  # Установка точности для вы
 fun = de.Decimal(0)  # Переменная fun в виде Decimal для вычисления
 
 while abs(rezultat.as_tuple().exponent) < t:  # Цикл while, выполняемый, пока число знаков после запятой результата не будет больше числа t
-    fun = de.Decimal(1 * np.linalg.det(np.multiply(matic, math.factorial(3 * n)))) * de.Decimal((1 / math.factorial(3 * n)))  # Вычисление слагаемого
+    fun = de.Decimal(1 * np.linalg.det(np.multiply(matic, n_factorial))) * de.Decimal((1 / n_factorial))  # Вычисление слагаемого
     rezultat = rezultat + (znak * fun)  # Прибавление результата с учетом знака
     n += 1  # Следующий номер слагаемого
     n_factorial *= n  # Вычисление факториала для числителя
