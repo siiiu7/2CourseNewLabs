@@ -40,7 +40,7 @@ while abs(rezultat.as_tuple().exponent) < t:  # Цикл while, выполняе
     fun = de.Decimal(1 * np.linalg.det(np.multiply(matic, 3 * n_factorial))) * de.Decimal((1 / math.factorial(3*n)))  # Вычисление слагаемого
     rezultat = rezultat + (znak * fun)  # Прибавление результата с учетом знака
     n += 1  # Следующий номер слагаемого
-    n_factorial *= 3*n  # Вычисление факториала для числителя
+    n_factorial *= n  # Вычисление факториала для числителя
     znak = -znak  # Смена знака для следующего слагаемого
 
 print(x)  # Вывод матрицы
