@@ -29,7 +29,7 @@ while True:
         t = input("Число t меньше единицы или больше ста, введите его ещё раз: ")
 
 n = 1  # Переменная для номера слагаемого
-n_factorial = math.factorial(n)  # Переменная факториала
+factorial = 1 # Переменная факториала
 znak = 1  # Переменная для знака
 rezultat = de.Decimal(0)  # Переменная для результата как Decimal
 matic = x  # Переменная случайной матрицы x
@@ -37,10 +37,10 @@ de.getcontext().prec = t + 60  # Установка точности для вы
 fun = de.Decimal(0)  # Переменная fun в виде Decimal для вычисления
 
 while abs(rezultat.as_tuple().exponent) < t:  # Цикл while, выполняемый, пока число знаков после запятой результата не будет больше числа t
-    fun = de.Decimal(1 * np.linalg.det(np.multiply(matic, 3 * n_factorial))) * de.Decimal((1 / math.factorial(3*n)))  # Вычисление слагаемого
-    rezultat = rezultat + (znak * fun)  # Прибавление результата с учетом знака
+    fun = de.Decimal(1 * np.linalg.det(np.multiply(matic, 3 * factorial))) * de.Decimal((1 / math.factorial(3*n)))  # Вычисление слагаемого
+    rezultat += znak * fun # Прибавление результата с учетом знака
     n += 1  # Следующий номер слагаемого
-    n_factorial *= n  # Вычисление факториала для числителя
+    factorial *= 3*n  # Вычисление факториала для числителя
     znak = -znak  # Смена знака для следующего слагаемого
 
 print(x)  # Вывод матрицы
