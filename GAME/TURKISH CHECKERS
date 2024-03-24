@@ -1,1 +1,823 @@
+from tkinter import *
+import os
+from tkinter import messagebox
+from PIL import Image
+from PIL import ImageTk
+
+
+class CheckersBoard:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("шашки")
+        self.master.resizable(False, False)
+        self.center_window()
+        self.canvas = Canvas(self.master, width=540, height=540, bg="azure3")
+        self.canvas.pack(side=RIGHT)
+        self.users = {}
+        self.canvas.pack()
+        self.users = {}
+
+        global black_queen, white_queen, black_checker, white_checker
+        black_checker = ImageTk.PhotoImage(
+            (Image.open('black-regular1.png')).resize((50, 50), Image.Resampling.LANCZOS))
+        black_queen = ImageTk.PhotoImage((Image.open('black-queen1.png')).resize((50, 50), Image.Resampling.LANCZOS))
+        white_checker = ImageTk.PhotoImage(
+            (Image.open('white-regular1.png')).resize((50, 50), Image.Resampling.LANCZOS))
+        white_queen = ImageTk.PhotoImage((Image.open('white-queen1.png')).resize((50, 50), Image.Resampling.LANCZOS))
+
+        global take, correct
+        take = False
+        correct = False
+        self.board = [[0, 0, 0, 0, 0, 0, 0, 0],
+                      [2, 2, 2, 2, 2, 2, 2, 2],
+                      [2, 2, 2, 2, 2, 2, 2, 2],
+                      [0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 0],
+                      [1, 1, 1, 1, 1, 1, 1, 1],
+                      [1, 1, 1, 1, 1, 1, 1, 1],
+                      [0, 0, 0, 0, 0, 0, 0, 0]]
+        self.current_player = [1, 3]
+        self.selected_piece = None
+        self.selected_rectangle = None
+        self.need_attack = False
+
+        self.label = Label(text="Вход в аккаунт", font=("Arial", 15))
+        self.label_login = Label(text="Имя", font="Arial 14")
+        self.label_password = Label(text="Пароль", font="Arial 14")
+        self.entry_login = Entry(width=30, justify="center")
+        self.entry_password = Entry(width=30, justify="center")
+        self.button_auth = Button(text="Авторизироваться", bg='azure3', font="Arial 14", command=lambda: self.authorization())
+        self.button_reg = Button(text="Зарегистрироваться", bg='azure3', font="Arial 14", command=lambda: self.registrate())
+        self.button_back = Button(text="Выход", command=lambda: self.authorization())
+
+        self.label.place(x=150, y=10)
+        self.label_login.place(x=80, y=85)
+        self.entry_login.place(x=150, y=85)
+        self.label_password.place(x=70, y=135)
+        self.entry_password.place(x=150, y=135)
+        self.button_auth.place(x=150, y=175, width=185)
+        self.button_reg.place(x=150, y=220, width=185)
+    def center_window(self):
+        screen_width = self.master.winfo_screenwidth()
+        screen_height = self.master.winfo_screenheight()
+        window_width = 450
+        window_height = 450
+
+        x = int((screen_width / 2) - (window_width / 2))
+        y = int((screen_height / 2) - (window_height / 2))
+
+        self.master.geometry(f"{window_width}x{window_height}+{x}+{y}")
+    def password_code(self, password):
+        key = 2
+        coded_password = ""
+        for i in password:
+            coded_password_temp = chr(ord(i) + key)
+            coded_password += coded_password_temp
+            key = -key + 1
+        return coded_password
+    def open_file(self):
+        try:
+            text = open("users.txt", "r+")
+            return text
+        except FileNotFoundError:
+            try:
+                text = open("users.txt", "w")
+                text.close()
+                text = open("users.txt", "r+")
+                return text
+            except FileNotFoundError:
+                text = open("users.txt", "r+")
+                return text
+    def authorization(self):
+        login = self.entry_login.get()
+        password_raw = self.entry_password.get()
+        password = self.password_code(password_raw)
+
+        if len(login) == 0 and len(password) == 0:
+            messagebox.showwarning(title="Ошибка!", message="Введите имя и пароль")
+            return
+
+        elif len(login) == 0 and len(password) != 0:
+            messagebox.showwarning(title="Ошибка!", message="Введите имя")
+            return
+
+        elif len(login) != 0 and len(password) == 0:
+            messagebox.showwarning(title="Ошибка!", message="Введите пароль")
+            return
+
+        file = self.open_file()
+        a = file.readline()[:-1].split(" ")
+
+        while True:
+            if a != [""]:
+                self.users[a[0]] = a[1]
+                a = file.readline()[:-1].split(" ")
+            else:
+                break
+
+        flag_reg = False
+        for i in self.users.items():
+            login_check, password_check = i
+            if login == login_check and password == password_check:
+                flag_reg = True
+                break
+
+        if flag_reg:
+            for widget in self.master.winfo_children():
+                widget.destroy()
+
+            Label(self.master, text="Вы успешно авторизировались!", font="Arial 16 bold").place(x=55, y=60)
+            button = Button(text="Играть", command=self.do_game, bg="azure3", font="Arial 19 bold")
+            button.place(x=175, y=150)
+        else:
+            messagebox.showwarning(title="Ошибка", message="Такого пользователя не существует")
+    def registrate(self):
+        login = self.entry_login.get()
+        password_raw = self.entry_password.get()
+        password = self.password_code(password_raw)
+
+        if len(login) == 0 or len(password) == 0:
+            messagebox.showwarning(title="Ошибка", message="Введите имя и пароль")
+            return
+
+        lines = self.open_file()
+        self.users = {}
+        for line in lines:
+            l, p = line.strip().split(" ")
+            self.users[l] = p
+
+        if login not in self.users:
+            with open("users.txt", "a") as file:
+                file.write(f'{login} {password}\n')
+            self.show_success_message()
+        else:
+            messagebox.showwarning(title="Ошибка!", message="Такой аккаунт уже есть!")
+    def do_game(self):
+        self.master.title("шашки")
+        self.canvas = Canvas(self.master, width=400, height=450, bg="#666666")
+        self.canvas.pack()
+        self.canvas.bind("<Button-1>", self.on_click)
+        self.draw_board(self.current_player)
+    def draw_board(self, current_plr):
+        if current_plr == [1, 3]:
+            self.canvas.create_text(200, 425, text="Ход белых", font=("Arial", 20), fill="#cccccc")
+        else:
+            self.canvas.create_text(200, 425, text="Ход чёрных", font=("Arial", 20), fill="#1a1a1a")
+        for row in range(8):
+            for col in range(8):
+                x1, y1 = col * 50, row * 50
+                x2, y2 = x1 + 50, y1 + 50
+                color = "#8a6341" if (row + col) % 2 == 0 else "#8a6341"
+                self.canvas.create_rectangle(x1, y1, x2, y2, fill=color)
+
+                piece = self.board[row][col]
+                if piece == 1:
+                    self.canvas.create_image(x1, y1, anchor='nw', image=white_checker)
+                elif piece == 2:
+                    self.canvas.create_image(x1, y1, anchor='nw', image=black_checker)
+                elif piece == 3:
+                    self.canvas.create_image(x1, y1, anchor='nw', image=white_queen)
+                elif piece == 4:
+                    self.canvas.create_image(x1, y1, anchor='nw', image=black_queen)
+    def on_click(self, event):
+        global take, correct
+        correct = False
+        col = event.x // 50
+        row = event.y // 50
+        print(self.selected_piece)
+        print(self.current_player, self.need_attack)
+        if self.selected_piece is None:
+            piece = self.board[row][col]
+            if piece != 0:
+                if piece in self.current_player:
+                    self.selected_rectangle = self.canvas.create_rectangle(event.x // 50 * 50, event.y // 50 * 50,
+                                                                           event.x // 50 * 50 + 50,
+                                                                           event.y // 50 * 50 + 50,
+                                                                           outline="red", width=2)
+                self.selected_piece = (row, col)
+        else:
+            dest_row, dest_col = row, col
+            src_row, src_col = self.selected_piece
+            if self.board[self.selected_piece[0]][
+                self.selected_piece[1]] in self.current_player:
+                correct, take = self.v_moves(src_row, src_col, dest_row, dest_col)
+                print(correct, take)
+                if correct:
+
+                    if self.board[src_row][src_col] == 1 and dest_row == 0:
+                        self.board[dest_row][src_col] = 3
+                        self.board[src_row][src_col] = 0
+
+                    elif self.board[src_row][src_col] == 2 and dest_row == 7:
+                        self.board[dest_row][src_col] = 4
+                        self.board[src_row][src_col] = 0
+                        for i in range(len(self.board)):
+                            print(self.board[i])
+
+                    else:
+                        self.board[dest_row][dest_col] = self.board[src_row][src_col]
+                        self.board[src_row][src_col] = 0
+                    if take:
+                        self.selected_piece = dest_row, dest_col
+                        self.canvas.delete("all")
+                        self.draw_board(self.current_player)
+                        self.selected_rectangle = self.canvas.create_rectangle(dest_col * 50, dest_row * 50,
+                                                                               dest_col * 50 + 50, dest_row * 50 + 50,
+                                                                               outline="blue", width=2)
+                    else:
+                        self.switch_player()
+                        self.selected_piece = None
+                        self.canvas.delete("all")
+                        self.draw_board(self.current_player)
+                        self.need_attack = False
+                        self.check_win()
+                        self.attack(take, dest_row, dest_col)
+
+                    for i in range(len(self.board)):
+                        print(self.board[i])
+                else:
+                    self.selected_piece = None
+                    self.canvas.delete("all")
+                    self.draw_board(self.current_player)
+            else:
+                self.selected_piece = None
+                self.canvas.delete("all")
+                self.draw_board(self.current_player)
+    def attack(self, take, row, col):
+        if not take:
+            if self.current_player == [1, 3]:
+                for i in range(8):
+                    for j in range(8):
+                        try:
+                            if self.board[i][j] in [2, 4]:
+                                if self.board[i - 1][j] == 0:
+                                    for k in range(i + 1, 8):
+                                        if self.board[k][j] == 3:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[k][j] in [1, 2, 3, 4]:
+                                            break
+                                if self.board[i + 1][j] == 0:
+                                    for k in range(i - 1, -1, -1):
+                                        if self.board[k][j] == 3:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[k][j] == 1 and abs(i - k) == 1:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[k][j] in [1, 2, 3, 4]:
+                                            break
+                        except IndexError:
+                            pass
+                for i in range(8):
+                    for j in range(8):
+                        try:
+                            if self.board[i][j] in [2, 4]:
+                                if self.board[i][j - 1] == 0:
+                                    for k in range(j + 1, 8):
+                                        if self.board[i][k] == 3:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] == 1 and abs(j - k) == 1:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] in [1, 2, 3, 4]:
+                                            break
+                                if self.board[i][j + 1] == 0:
+                                    for k in range(j - 1, -1, -1):
+                                        if self.board[i][k] == 3:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] == 1 and abs(j - k) == 1:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] in [1, 2, 3, 4]:
+                                            break
+                        except IndexError:
+                            pass
+            if self.current_player == [2, 4]:
+                for i in range(8):
+                    for j in range(8):
+                        try:
+                            if self.board[i][j] in [1, 3]:
+                                if self.board[i - 1][j] == 0:
+                                    for k in range(i + 1, 8):
+                                        if self.board[k][j] == 4:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[k][j] == 2 and abs(i - k) == 1:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[k][j] in [1, 3]:
+                                            break
+                                if self.board[i + 1][j] == 0:
+                                    for k in range(i - 1, -1, -1):
+                                        if self.board[k][j] == 4:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[k][j] in [1, 2, 3, 4]:
+                                            break
+                        except IndexError:
+                            pass
+                for i in range(8):
+                    for j in range(8):
+                        try:
+                            if self.board[i][j] in [1, 3]:
+                                if self.board[i][j - 1] == 0:
+                                    for k in range(j + 1, 8):
+                                        if self.board[i][k] == 4:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] == 2 and abs(j - k) == 1:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] in [1, 3]:
+                                            break
+                                if self.board[i][j + 1] == 0:
+                                    for k in range(j - 1, -1, -1):
+                                        if self.board[i][k] == 4:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] == 2 and abs(j - k) == 1:
+                                            self.need_attack = True
+                                            break
+                                        elif self.board[i][k] in [1, 2, 3, 4]:
+                                            break
+                        except IndexError:
+                            pass
+
+    def v_moves(self, src_row, src_col, dest_row, dest_col):
+        if self.board[src_row][src_col] == 1 and self.board[dest_row][dest_col] == 0:
+            if (dest_row - src_row == -1 and abs(dest_col - src_col) == 0) or \
+                    (dest_row - src_row == 0 and abs(dest_col - src_col) == 1):
+                if not self.need_attack:
+                    return [True, False]
+            elif (dest_row - src_row == -2 and abs(dest_col - src_col) == 0 and
+                  self.board[dest_row + 1][dest_col] in [2, 4]):
+                self.board[dest_row + 1][dest_col] = 0
+                if self.need_attack:
+                    self.need_attack = False
+                try:
+                    if self.board[dest_row - 1][dest_col] in [2, 4] and self.board[dest_row - 2][dest_col] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col - 1] in [2, 4] and self.board[dest_row][dest_col - 2] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col + 1] in [2, 4] and self.board[dest_row][dest_col + 2] == 0:
+                        return [True, True]
+                    else:
+                        return [True, False]
+                except IndexError:
+                    return [True, False]
+            elif dest_col - src_col == 2 and dest_row == src_row and self.board[dest_row][
+                dest_col - 1] in [2, 4]:
+                self.board[dest_row][dest_col - 1] = 0
+                if self.need_attack:
+                    self.need_attack = False
+                try:
+                    if self.board[dest_row + 1][dest_col] in [2, 4] and self.board[dest_row + 2][dest_col] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col + 1] in [2, 4] and self.board[dest_row][dest_col + 2] == 0:
+                        return [True, True]
+                    else:
+                        return [True, False]
+                except IndexError:
+                    return [True, False]
+            elif dest_col - src_col == -2 and dest_row == src_row and self.board[dest_row][
+                dest_col + 1] in [2, 4]:
+                self.board[dest_row][dest_col + 1] = 0
+                if self.need_attack:
+                    self.need_attack = False
+                try:
+                    if self.board[dest_row + 1][dest_col] in [2, 4] and self.board[dest_row + 2][dest_col] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col - 1] in [2, 4] and self.board[dest_row][dest_col - 2] == 0:
+                        return [True, True]
+                    else:
+                        return [True, False]
+                except IndexError:
+                    return [True, False]
+        elif self.board[src_row][src_col] == 3 and self.board[dest_row][dest_col] == 0:
+
+            if (abs(dest_row - src_row) >= 1 and abs(dest_col - src_col) == 0) or \
+                    (abs(dest_row - src_row) == 0 and abs(dest_col - src_col) >= 1):
+                if src_col == dest_col:
+                    correct, attack = self.check_col(src_row, dest_row, src_col)
+                    if correct and attack == 0 and not self.need_attack:
+                        return [True, False]
+                    elif correct and attack >= 1:
+                        self.board[attack - 1][src_col] = 0
+                        if dest_row - (attack - 1) > 0:
+                            try:
+                                for i in range(dest_row + 1, 8):
+                                    if self.board[i][dest_col] in [2, 4] and self.board[i + 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col + 1, 8):
+                                    if self.board[dest_row][i] in [2, 4] and self.board[dest_row][i + 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col - 1, 0, -1):
+                                    if self.board[dest_row][i] in [2, 4] and self.board[dest_row][i - 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        elif dest_row - (attack - 1) < 0:
+                            try:
+                                for i in range(dest_row - 1, 0, -1):
+                                    if self.board[i][dest_col] in [2, 4] and self.board[i - 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col + 1, 8):
+                                    if self.board[dest_row][i] in [2, 4] and self.board[dest_row][i + 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col - 1, 0, -1):
+                                    if self.board[dest_row][i] in [2, 4] and self.board[dest_row][i - 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        return [True, False]
+                    else:
+                        if not take:
+                            return [False, False]
+                elif src_row == dest_row:
+                    correct, attack = self.check_row(src_col, dest_col, src_row)
+                    if correct and attack == 0 and not self.need_attack:
+                        return [True, False]
+                    elif correct and attack >= 1:
+                        self.board[src_row][attack - 1] = 0
+                        if dest_col - (attack - 1) > 0:
+                            try:
+                                for i in range(dest_col + 1, 8):
+                                    if self.board[dest_row][i] in [2, 4] and self.board[dest_row][i + 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row + 1, 8):
+                                    if self.board[i][dest_col] in [2, 4] and self.board[i + 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row - 1, 0, -1):
+                                    if self.board[i][dest_col] in [2, 4] and self.board[i - 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        elif dest_col - (attack - 1) < 0:
+
+                            try:
+                                for i in range(dest_col - 1, 0, -1):
+                                    if self.board[dest_row][i] in [2, 4] and self.board[dest_row][i - 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row + 1, 8):
+                                    if self.board[i][dest_col] in [2, 4] and self.board[i + 1][dest_col] == 0:
+                                        
+                                        print(self.board[i][dest_col])
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row - 1, 0, -1):
+                                    if self.board[i][dest_col] in [2, 4] and self.board[i - 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        return [True, False]
+                    else:
+                        if not take:
+                            return [False, False]
+        elif self.board[src_row][src_col] == 2 and self.board[dest_row][dest_col] == 0:
+            if (dest_row - src_row == 1 and abs(dest_col - src_col) == 0) or \
+                    (dest_row - src_row == 0 and abs(dest_col - src_col) == 1):
+                if not self.need_attack:
+                    return [True, False]
+            elif (dest_row - src_row == 2 and abs(dest_col - src_col) == 0 and
+                  self.board[dest_row - 1][dest_col] in [1, 3]):
+                self.board[dest_row - 1][dest_col] = 0
+                if self.need_attack:
+                    self.need_attack = False
+                try:
+                    if self.board[dest_row + 1][dest_col] in [1, 3] and self.board[dest_row + 2][dest_col] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col - 1] in [1, 3] and self.board[dest_row][dest_col - 2] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col + 1] in [1, 3] and self.board[dest_row][dest_col + 2] == 0:
+                        return [True, True]
+                    else:
+                        return [True, False]
+                except IndexError:
+                    return [True, False]
+            elif dest_col - src_col == 2 and dest_row == src_row and self.board[dest_row][
+                dest_col - 1] in [1, 3]:
+                self.board[dest_row][dest_col - 1] = 0
+                if self.need_attack:
+                    self.need_attack = False
+                try:
+                    if self.board[dest_row - 1][dest_col] in [1, 3] and self.board[dest_row - 2][dest_col] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col + 1] in [1, 3] and self.board[dest_row][dest_col + 2] == 0:
+                        return [True, True]
+                    else:
+                        return [True, False]
+                except IndexError:
+                    return [True, False]
+            elif dest_col - src_col == -2 and dest_row == src_row and self.board[dest_row][
+                dest_col + 1] in [1, 3]:
+                self.board[dest_row][dest_col + 1] = 0
+                if self.need_attack:
+                    self.need_attack = False
+                try:
+                    if self.board[dest_row - 1][dest_col] in [1, 3] and self.board[dest_row - 2][dest_col] == 0:
+                        return [True, True]
+                    elif self.board[dest_row][dest_col - 1] in [1, 3] and self.board[dest_row][dest_col - 2] == 0:
+                        return [True, True]
+                    else:
+                        return [True, False]
+                except IndexError:
+                    return [True, False]
+        elif self.board[src_row][src_col] == 4 and self.board[dest_row][dest_col] == 0:
+            if (abs(dest_row - src_row) >= 1 and abs(dest_col - src_col) == 0) or \
+                    (abs(dest_row - src_row == 0) and abs(dest_col - src_col) >= 1):
+                if src_col == dest_col:
+                    correct, attack = self.check_col(src_row, dest_row, src_col)
+                    if correct and attack == 0 and not self.need_attack:
+                        return [True, False]
+                    elif correct and attack >= 1:
+                        self.board[attack - 1][src_col] = 0
+                        if dest_row - (attack - 1) > 0:
+                            try:
+                                for i in range(dest_row + 1, 8):
+                                    if self.board[i][dest_col] in [1, 3] and self.board[i + 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col + 1, 8):
+                                    if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i + 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col - 1, 0, -1):
+                                    if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i - 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        elif dest_row - (attack - 1) < 0:
+                            try:
+                                for i in range(dest_row - 1, 0, -1):
+                                    if self.board[i][dest_col] in [1, 3] and self.board[i - 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col + 1, 8):
+                                    if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i + 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_col - 1, 0, -1):
+                                    if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i - 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        return [True, False]
+                    else:
+                        if not take:
+                            return [False, False]
+                elif src_row == dest_row:
+                    correct, attack = self.check_row(src_col, dest_col, src_row)
+                    if correct and attack == 0 and not self.need_attack:
+                        return [True, False]
+                    elif correct and attack >= 1:
+                        self.board[src_row][attack - 1] = 0
+                        if dest_col - (attack - 1) > 0:
+                            try:
+                                for i in range(dest_col + 1, 8):
+                                    if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i + 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row + 1, 8):
+                                    if self.board[i][dest_col] in [1, 3] and self.board[i + 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row - 1, 0, -1):
+                                    if self.board[i][dest_col] in [1, 3] and self.board[i - 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        elif dest_col - (attack - 1) < 0:
+                            try:
+                                for i in range(dest_col - 1, 0, -1):
+                                    if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i - 1] == 0:
+                                        return [True, True]
+                                    elif self.board[dest_row][i] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row + 1, 8):
+                                    if self.board[i][dest_col] in [1, 3] and self.board[i + 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                            try:
+                                for i in range(dest_row - 1, 0, -1):
+                                    if self.board[i][dest_col] in [1, 3] and self.board[i - 1][dest_col] == 0:
+                                        return [True, True]
+                                    elif self.board[i][dest_col] in [1, 2, 3, 4]:
+                                        break
+                            except IndexError:
+                                pass
+                        return [True, False]
+                    else:
+                        if not take:
+                            return [False, False]
+        else:
+            if not take:
+                return [False, False]
+    def switch_player(self):
+        if self.current_player == [1, 3]:
+            self.current_player = [2, 4]
+        else:
+            self.current_player = [1, 3]
+
+    def reset_board(self):
+        self.board = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+        self.canvas.delete("all")
+        self.draw_board(self.current_player)
+
+    def check_win(self):
+        count = 0
+        count2 = 0
+        for i in range(8):
+            count += self.board[i].count(1)
+            count += self.board[i].count(3)
+            count2 += self.board[i].count(2)
+            count2 += self.board[i].count(4)
+        if count > 0 >= count2:
+            messagebox.showinfo("Уведомление", "Победа черных!")
+            self.reset_board()
+        elif count2 > 0 >= count:
+            messagebox.showinfo("Уведомление", "Победа белых!")
+            self.reset_board()
+        elif count == count2 == 1:
+            messagebox.showinfo("Уведомление", "Игра закончилась ничьей!")
+            self.reset_board()
+        else:
+            count = 0
+            count2 = 0
+            for i in range(8):
+                for j in range(8):
+                    if self.board[i][j] in [1, 3]:
+                        try:
+                            if self.board[i + 1][j] == 0 or (
+                                    self.board[i + 1][j] in [2, 4] and self.board[i + 2][j] == 0):
+                                count += 1
+                            elif self.board[i][j + 1] == 0 or (
+                                    self.board[i][j + 1] in [2, 4] and self.board[i][j + 2] == 0):
+                                count += 1
+                            elif self.board[i][j - 1] == 0 or (
+                                    self.board[i][j - 1] in [2, 4] and self.board[i][j - 2] == 0):
+                                count += 1
+                        except IndexError:
+                            pass
+                    elif self.board[i][j] in [2, 4]:
+                        try:
+                            if self.board[i - 1][j] == 0 or (
+                                    self.board[i - 1][j] in [1, 3] and self.board[i - 2][j] == 0):
+                                count2 += 1
+                            elif self.board[i][j + 1] == 0 or (
+                                    self.board[i][j + 1] in [1, 3] and self.board[i][j + 2] == 0):
+                                count2 += 1
+                            elif self.board[i][j - 1] == 0 or (
+                                    self.board[i][j - 1] in [1, 3] and self.board[i][j - 2] == 0):
+                                count2 += 1
+                        except IndexError:
+                            pass
+            print(count, count2)
+            if count == 0:
+                messagebox.showinfo("Уведомление", "Победа белых!")
+                self.reset_board()
+            if count2 == 0:
+                messagebox.showinfo("Уведомление", "Победа черных!")
+                self.reset_board()
+
+    def check_col(self, start, end, col):
+        count = 0
+        index = 0
+        correct_ind = end
+        if start > end:
+            start, end = end - 1, start - 1
+        else:
+            correct_ind -= 2
+        for i in range(start + 1, end + 1):
+            if self.board[i][col] != 0:
+                if self.board[i][col] in self.current_player:
+                    count += 1
+                count += 1
+                index = i + 1
+        if count == 0:
+            return [True, False]
+        elif count == 1 and correct_ind + 1 == index - 1:
+            return [True, index]
+        else:
+            return [False, False]
+    def check_row(self, start, end, row):
+        count = 0
+        index = 0
+        correct_ind = end - 1
+        if start > end:
+            correct_ind += 2
+            start, end = end, start
+        for i in range(start + 1, end):
+            if self.board[row][i] != 0:
+                if self.board[row][i] in self.current_player:
+                    count += 1
+                index = i + 1
+                count += 1
+        if count == 0:
+            return [True, False]
+        elif count == 1 and correct_ind == index - 1:
+            return [True, index]
+        else:
+            return [False, False]
+def main():
+    root = Tk()
+    app = CheckersBoard(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
 
