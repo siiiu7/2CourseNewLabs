@@ -6,17 +6,18 @@ from PIL import ImageTk
 
 
 class CheckersBoard:
+    # Инициализация главного окна
     def __init__(self, master):
         self.master = master
-        self.master.title("шашки")
+        self.master.title("Турецкие шашки-поддавки by Sergey Prokofev")
         self.master.resizable(False, False)
         self.center_window()
-        self.canvas = Canvas(self.master, width=540, height=540, bg="azure3")
+        self.canvas = Canvas(self.master, width=540, height=450, bg="azure3")
         self.canvas.pack(side=RIGHT)
         self.users = {}
         self.canvas.pack()
         self.users = {}
-
+        # Загрузка изображений шашек и дамок
         global black_queen, white_queen, black_checker, white_checker
         black_checker = ImageTk.PhotoImage(
             (Image.open('black-regular1.png')).resize((50, 50), Image.Resampling.LANCZOS))
@@ -24,7 +25,7 @@ class CheckersBoard:
         white_checker = ImageTk.PhotoImage(
             (Image.open('white-regular1.png')).resize((50, 50), Image.Resampling.LANCZOS))
         white_queen = ImageTk.PhotoImage((Image.open('white-queen1.png')).resize((50, 50), Image.Resampling.LANCZOS))
-
+        # Инициализация переменных для игры
         global take, correct
         take = False
         correct = False
@@ -40,16 +41,16 @@ class CheckersBoard:
         self.selected_piece = None
         self.selected_rectangle = None
         self.need_attack = False
-
-        self.label = Label(text="Вход в аккаунт", font=("Arial", 15))
-        self.label_login = Label(text="Имя", font="Arial 14")
-        self.label_password = Label(text="Пароль", font="Arial 14")
+        # Создание виджетов для авторизации
+        self.label = Label(text="Вход в аккаунт", bg='azure3', font=("Arial", 15))
+        self.label_login = Label(text="Имя", bg='azure3',  font="Arial 14")
+        self.label_password = Label(text="Пароль", bg='azure3', font="Arial 14")
         self.entry_login = Entry(width=30, justify="center")
         self.entry_password = Entry(width=30, justify="center")
         self.button_auth = Button(text="Авторизироваться", bg='azure3', font="Arial 14", command=lambda: self.authorization())
         self.button_reg = Button(text="Зарегистрироваться", bg='azure3', font="Arial 14", command=lambda: self.registrate())
         self.button_back = Button(text="Выход", command=lambda: self.authorization())
-
+        # Размещение виджетов на экране
         self.label.place(x=150, y=10)
         self.label_login.place(x=80, y=85)
         self.entry_login.place(x=150, y=85)
@@ -57,6 +58,8 @@ class CheckersBoard:
         self.entry_password.place(x=150, y=135)
         self.button_auth.place(x=150, y=175, width=185)
         self.button_reg.place(x=150, y=220, width=185)
+
+    # Функция для центрирования окна
     def center_window(self):
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
@@ -75,7 +78,7 @@ class CheckersBoard:
             coded_password += coded_password_temp
             key = -key + 1
         return coded_password
-    def open_file(self):
+    def open_file(self): # Файл для сохранения пароля и имени
         try:
             text = open("users.txt", "r+")
             return text
@@ -88,6 +91,8 @@ class CheckersBoard:
             except FileNotFoundError:
                 text = open("users.txt", "r+")
                 return text
+
+    # Авторизация
     def authorization(self):
         login = self.entry_login.get()
         password_raw = self.entry_password.get()
@@ -131,6 +136,7 @@ class CheckersBoard:
             button.place(x=175, y=150)
         else:
             messagebox.showwarning(title="Ошибка", message="Такого пользователя не существует")
+    # Регистрация
     def registrate(self):
         login = self.entry_login.get()
         password_raw = self.entry_password.get()
@@ -153,7 +159,7 @@ class CheckersBoard:
         else:
             messagebox.showwarning(title="Ошибка!", message="Такой аккаунт уже есть!")
     def do_game(self):
-        self.master.title("шашки")
+        self.master.title("Турецкие шашки-поддавки by Sergey Prokofev")
         self.canvas = Canvas(self.master, width=400, height=450, bg="#666666")
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.on_click)
@@ -347,9 +353,9 @@ class CheckersBoard:
                             pass
 
     def v_moves(self, src_row, src_col, dest_row, dest_col):
-        if self.board[src_row][src_col] == 1 and self.board[dest_row][dest_col] == 0:
+        if self.board[src_row][src_col] == 1 and self.board[dest_row][dest_col] == 0: # Проверка для белой пешки
             if (dest_row - src_row == -1 and abs(dest_col - src_col) == 0) or \
-                    (dest_row - src_row == 0 and abs(dest_col - src_col) == 1):
+                    (dest_row - src_row == 0 and abs(dest_col - src_col) == 1): # Ход на пустую клетку
                 if not self.need_attack:
                     return [True, False]
             elif (dest_row - src_row == -2 and abs(dest_col - src_col) == 0 and
@@ -396,10 +402,10 @@ class CheckersBoard:
                         return [True, False]
                 except IndexError:
                     return [True, False]
-        elif self.board[src_row][src_col] == 3 and self.board[dest_row][dest_col] == 0:
+        elif self.board[src_row][src_col] == 3 and self.board[dest_row][dest_col] == 0: # Проверка для белой дамки
 
             if (abs(dest_row - src_row) >= 1 and abs(dest_col - src_col) == 0) or \
-                    (abs(dest_row - src_row) == 0 and abs(dest_col - src_col) >= 1):
+                    (abs(dest_row - src_row) == 0 and abs(dest_col - src_col) >= 1): # Ход на пустую клетку
                 if src_col == dest_col:
                     correct, attack = self.check_col(src_row, dest_row, src_col)
                     if correct and attack == 0 and not self.need_attack:
@@ -504,7 +510,7 @@ class CheckersBoard:
                             try:
                                 for i in range(dest_row + 1, 8):
                                     if self.board[i][dest_col] in [2, 4] and self.board[i + 1][dest_col] == 0:
-                                        
+
                                         print(self.board[i][dest_col])
                                         return [True, True]
                                     elif self.board[i][dest_col] in [1, 2, 3, 4]:
@@ -523,7 +529,7 @@ class CheckersBoard:
                     else:
                         if not take:
                             return [False, False]
-        elif self.board[src_row][src_col] == 2 and self.board[dest_row][dest_col] == 0:
+        elif self.board[src_row][src_col] == 2 and self.board[dest_row][dest_col] == 0: # Проверка для черной пешки
             if (dest_row - src_row == 1 and abs(dest_col - src_col) == 0) or \
                     (dest_row - src_row == 0 and abs(dest_col - src_col) == 1):
                 if not self.need_attack:
@@ -549,7 +555,7 @@ class CheckersBoard:
                 self.board[dest_row][dest_col - 1] = 0
                 if self.need_attack:
                     self.need_attack = False
-                try:
+                try: # Проверка на необходимость атаки
                     if self.board[dest_row - 1][dest_col] in [1, 3] and self.board[dest_row - 2][dest_col] == 0:
                         return [True, True]
                     elif self.board[dest_row][dest_col + 1] in [1, 3] and self.board[dest_row][dest_col + 2] == 0:
@@ -559,11 +565,11 @@ class CheckersBoard:
                 except IndexError:
                     return [True, False]
             elif dest_col - src_col == -2 and dest_row == src_row and self.board[dest_row][
-                dest_col + 1] in [1, 3]:
+                dest_col + 1] in [1, 3]: # произведён ход влево
                 self.board[dest_row][dest_col + 1] = 0
                 if self.need_attack:
                     self.need_attack = False
-                try:
+                try: # Проверка на необходимость атаки
                     if self.board[dest_row - 1][dest_col] in [1, 3] and self.board[dest_row - 2][dest_col] == 0:
                         return [True, True]
                     elif self.board[dest_row][dest_col - 1] in [1, 3] and self.board[dest_row][dest_col - 2] == 0:
@@ -572,6 +578,7 @@ class CheckersBoard:
                         return [True, False]
                 except IndexError:
                     return [True, False]
+        # Проверка чёрной дамки
         elif self.board[src_row][src_col] == 4 and self.board[dest_row][dest_col] == 0:
             if (abs(dest_row - src_row) >= 1 and abs(dest_col - src_col) == 0) or \
                     (abs(dest_row - src_row == 0) and abs(dest_col - src_col) >= 1):
@@ -581,7 +588,7 @@ class CheckersBoard:
                         return [True, False]
                     elif correct and attack >= 1:
                         self.board[attack - 1][src_col] = 0
-                        if dest_row - (attack - 1) > 0:
+                        if dest_row - (attack - 1) > 0: # произведён ход вниз
                             try:
                                 for i in range(dest_row + 1, 8):
                                     if self.board[i][dest_col] in [1, 3] and self.board[i + 1][dest_col] == 0:
@@ -591,7 +598,7 @@ class CheckersBoard:
                             except IndexError:
                                 pass
                             try:
-                                for i in range(dest_col + 1, 8):
+                                for i in range(dest_col + 1, 8): # произведён ход вправо
                                     if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i + 1] == 0:
                                         return [True, True]
                                     elif self.board[dest_row][i] in [1, 2, 3, 4]:
@@ -599,14 +606,14 @@ class CheckersBoard:
                             except IndexError:
                                 pass
                             try:
-                                for i in range(dest_col - 1, 0, -1):
+                                for i in range(dest_col - 1, 0, -1): # произведён ход влево
                                     if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i - 1] == 0:
                                         return [True, True]
                                     elif self.board[dest_row][i] in [1, 2, 3, 4]:
                                         break
                             except IndexError:
                                 pass
-                        elif dest_row - (attack - 1) < 0:
+                        elif dest_row - (attack - 1) < 0: # произведён ход вверх
                             try:
                                 for i in range(dest_row - 1, 0, -1):
                                     if self.board[i][dest_col] in [1, 3] and self.board[i - 1][dest_col] == 0:
@@ -616,7 +623,7 @@ class CheckersBoard:
                             except IndexError:
                                 pass
                             try:
-                                for i in range(dest_col + 1, 8):
+                                for i in range(dest_col + 1, 8): # произведён ход вправо
                                     if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i + 1] == 0:
                                         return [True, True]
                                     elif self.board[dest_row][i] in [1, 2, 3, 4]:
@@ -624,7 +631,7 @@ class CheckersBoard:
                             except IndexError:
                                 pass
                             try:
-                                for i in range(dest_col - 1, 0, -1):
+                                for i in range(dest_col - 1, 0, -1): # произведён ход влево
                                     if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i - 1] == 0:
                                         return [True, True]
                                     elif self.board[dest_row][i] in [1, 2, 3, 4]:
@@ -641,7 +648,7 @@ class CheckersBoard:
                         return [True, False]
                     elif correct and attack >= 1:
                         self.board[src_row][attack - 1] = 0
-                        if dest_col - (attack - 1) > 0:
+                        if dest_col - (attack - 1) > 0: # произведён ход вправо
                             try:
                                 for i in range(dest_col + 1, 8):
                                     if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i + 1] == 0:
@@ -666,7 +673,7 @@ class CheckersBoard:
                                         break
                             except IndexError:
                                 pass
-                        elif dest_col - (attack - 1) < 0:
+                        elif dest_col - (attack - 1) < 0: # произведён ход влево
                             try:
                                 for i in range(dest_col - 1, 0, -1):
                                     if self.board[dest_row][i] in [1, 3] and self.board[dest_row][i - 1] == 0:
@@ -718,6 +725,7 @@ class CheckersBoard:
         self.canvas.delete("all")
         self.draw_board(self.current_player)
 
+    # Счётчик ходов
     def check_win(self):
         count = 0
         count2 = 0
@@ -820,4 +828,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
