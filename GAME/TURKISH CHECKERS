@@ -249,6 +249,8 @@ class CheckersBoard:
             self.current_player = [2, 4]
         else:
             self.current_player = [1, 3]
+            
+            
     def v_moves(self, src_row, src_col, dest_row, dest_col):
         # Если исходная клетка содержит обычную фишку и клетка назначения пуста
         if self.board[src_row][src_col] == 1 and self.board[dest_row][dest_col] == 0:
@@ -882,72 +884,6 @@ if __name__ == "__main__":
     root = Tk()
     app = CheckersBoard(root)
     root.mainloop()
-
-
-    def switch_player(self):
-        # Переключение текущего игрока между [1, 3] и [2, 4]
-        if self.current_player == [1, 3]:
-            self.current_player = [2, 4]
-        else:
-            self.current_player = [1, 3]
-
-    def check_win(self):
-        # Проверка на завершение игры и определение победителя или ничьей
-        count = 0
-        count2 = 0
-        for i in range(8):
-            count += self.board[i].count(1) # Подсчет шашек первого игрока (черные)
-            count += self.board[i].count(3) # Подсчет дамок первого игрока (черные)
-            count2 += self.board[i].count(2) # Подсчет шашек второго игрока (белые)
-            count2 += self.board[i].count(4) # Подсчет дамок второго игрока (белые)
-        if count > 0 >= count2: # Проверка на победу одного из игроков или ничью
-            messagebox.showinfo("Уведомление", "Победа черных!")
-            self.reset_board()
-        elif count2 > 0 >= count:
-            messagebox.showinfo("Уведомление", "Победа белых!")
-            self.reset_board()
-        elif count == count2 == 1:
-            messagebox.showinfo("Уведомление", "Игра закончилась ничьей!")
-            self.reset_board()
-        else: # Подсчет возможных ходов для каждого игрока
-            count = 0
-            count2 = 0
-            for i in range(8):
-                for j in range(8):
-                    if self.board[i][j] in [1, 3]:
-                        try:
-                            if self.board[i + 1][j] == 0 or (
-                                    self.board[i + 1][j] in [2, 4] and self.board[i + 2][j] == 0):
-                                count += 1
-                            elif self.board[i][j + 1] == 0 or (
-                                    self.board[i][j + 1] in [2, 4] and self.board[i][j + 2] == 0):
-                                count += 1
-                            elif self.board[i][j - 1] == 0 or (
-                                    self.board[i][j - 1] in [2, 4] and self.board[i][j - 2] == 0):
-                                count += 1
-                        except IndexError:
-                            pass
-                    elif self.board[i][j] in [2, 4]:
-                        try:
-                            if self.board[i - 1][j] == 0 or (
-                                    self.board[i - 1][j] in [1, 3] and self.board[i - 2][j] == 0):
-                                count2 += 1
-                            elif self.board[i][j + 1] == 0 or (
-                                    self.board[i][j + 1] in [1, 3] and self.board[i][j + 2] == 0):
-                                count2 += 1
-                            elif self.board[i][j - 1] == 0 or (
-                                    self.board[i][j - 1] in [1, 3] and self.board[i][j - 2] == 0):
-                                count2 += 1
-                        except IndexError:
-                            pass
-            print(count, count2)
-            if count == 0: # Проверка, остались ли у игроков ходы
-                messagebox.showinfo("Уведомление", "Победа белых!")
-                self.reset_board()
-            if count2 == 0:
-                messagebox.showinfo("Уведомление", "Победа черных!")
-                self.reset_board()
-
 
     def main():
         # Основная функция запуска игры
