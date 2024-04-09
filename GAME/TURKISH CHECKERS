@@ -10,18 +10,18 @@ class CheckersBoard:
 
     def reset_board(self):
         # Сброс игровой доски и отображение начальной позиции фигур
-        self.board = [
+        self.board = [ 
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [2, 2, 2, 2, 2, 2, 2, 2],
-            [2, 2, 2, 2, 2, 2, 2, 2],
+            [2, 2, 2, 2, 2, 2, 2, 2], # Второй игрок
+            [2, 2, 2, 2, 2, 2, 2, 2], # Черные фигуры
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1], # Первый игрок
+            [1, 1, 1, 1, 1, 1, 1, 1], # Белые фигуры
             [0, 0, 0, 0, 0, 0, 0, 0]
         ]
-        self.canvas.delete("all")
-        self.draw_board(self.current_player)
+        self.canvas.delete("all") # Удаление всех элементов на холсте
+        self.draw_board(self.current_player) # Отрисовка начального состояния доски
     def check_row(self, start, end, row):
         # Проверка на возможность хода по строке
         count = 0
@@ -194,18 +194,18 @@ class CheckersBoard:
             count += self.board[i].count(3)
             count2 += self.board[i].count(2)
             count2 += self.board[i].count(4)
-        if count > 0 >= count2:
+        if count > 0 >= count2: # Проверяет, выиграл ли игрок 1 (черные), если количество его фишек больше нуля, а у игрока 2 (белых) равно нулю
             messagebox.showinfo("Уведомление", "Победа черных!")
             self.reset_board()
-        elif count2 > 0 >= count:
+        elif count2 > 0 >= count: # Проверяет, выиграл ли игрок 2 (белые), если количество его фишек больше нуля, а у игрока 1 (черных) равно нулю
             messagebox.showinfo("Уведомление", "Победа белых!")
             self.reset_board()
-        elif count == count2 == 1:
+        elif count == count2 == 1: # Проверяет, наступила ли ничья, если количество фишек у обоих игроков равно 1
             messagebox.showinfo("Уведомление", "Игра закончилась ничьей!")
             self.reset_board()
         else:
-            count = 0
-            count2 = 0
+            count = 0 # Сбрасывает переменную count для подсчета возможных ходов у игрока 1 (черных)
+            count2 = 0 # Сбрасывает переменную count2 для подсчета возможных ходов у игрока 2 (белых)
             for i in range(8):
                 for j in range(8):
                     if self.board[i][j] in [1, 3]:
@@ -491,7 +491,7 @@ class CheckersBoard:
                         return [True, False]
                 except IndexError:
                     return [True, False]
-        elif self.board[src_row][src_col] == 4 and self.board[dest_row][dest_col] == 0:
+        elif self.board[src_row][src_col] == 4 and self.board[dest_row][dest_col] == 0: # Если исходная клетка содержит дамку и клетка назначения пуста
             if (abs(dest_row - src_row) >= 1 and abs(dest_col - src_col) == 0) or \
                     (abs(dest_row - src_row == 0) and abs(dest_col - src_col) >= 1):
                 if src_col == dest_col:
@@ -627,7 +627,7 @@ class CheckersBoard:
         self.users = {}
         self.canvas.pack()
         self.users = {}
-            # Загрузка изображений шашек и дамок
+        # Загрузка изображений шашек и дамок
         global black_queen, white_queen, black_checker, white_checker
         black_checker = ImageTk.PhotoImage(
                 (Image.open('black-regular1.png')).resize((50, 50), Image.Resampling.LANCZOS))
@@ -637,7 +637,7 @@ class CheckersBoard:
                 (Image.open('white-regular1.png')).resize((50, 50), Image.Resampling.LANCZOS))
         white_queen = ImageTk.PhotoImage(
                 (Image.open('white-queen1.png')).resize((50, 50), Image.Resampling.LANCZOS))
-            # Инициализация переменных для игры
+        # Инициализация переменных для игры
         global take, correct
         take = False
         correct = False
@@ -653,7 +653,7 @@ class CheckersBoard:
         self.selected_piece = None
         self.selected_rectangle = None
         self.need_attack = False
-            # Создание виджетов для авторизации
+        # Создание виджетов для авторизации
         self.label = Label(text="Вход в аккаунт", bg='azure3', font=("Arial", 15))
         self.label_login = Label(text="Имя", bg='azure3', font="Arial 14")
         self.label_password = Label(text="Пароль", bg='azure3', font="Arial 14")
@@ -664,7 +664,7 @@ class CheckersBoard:
         self.button_reg = Button(text="Зарегистрироваться", bg='azure3', font="Arial 14",
                                      command=lambda: self.registrate())
         self.button_back = Button(text="Выход", command=lambda: self.authorization())
-            # Размещение виджетов на экране
+        # Размещение виджетов на экране
         self.label.place(x=150, y=10)
         self.label_login.place(x=80, y=85)
         self.entry_login.place(x=150, y=85)
@@ -823,23 +823,23 @@ class CheckersBoard:
     def on_click(self, event):
         global take, correct
         correct = False
-        col = event.x // 50
-        row = event.y // 50
-
-        if self.selected_piece is None:
+        col = event.x // 50 # Определение строки и столбца, по которым был произведен щелчок мыши
+        row = event.y // 50 # Определение строки и столбца, по которым был произведен щелчок мыши
+        # Если шашка не была выбрана
+        if self.selected_piece is None: # Получение информации о клетке, по которой был произведен щелчок
             piece = self.board[row][col]
-            if piece != 0:
-                if piece in self.current_player:
+            if piece != 0: # Если на клетке есть шашка
+                if piece in self.current_player: # Отображение выбранной клетки на доске
                     self.selected_rectangle = self.canvas.create_rectangle(event.x // 50 * 50, event.y // 50 * 50,
                                                                            event.x // 50 * 50 + 50,
                                                                            event.y // 50 * 50 + 50,
                                                                            outline="red", width=2)
-                self.selected_piece = (row, col)
+                self.selected_piece = (row, col) # Запоминание выбранной шашки
         else:
             dest_row, dest_col = row, col
-            src_row, src_col = self.selected_piece
+            src_row, src_col = self.selected_piece # Проверка, является ли выбранная шашка шашкой текущего игрока
             if self.board[self.selected_piece[0]][
-                self.selected_piece[1]] in self.current_player:
+                self.selected_piece[1]] in self.current_player: # Проверка правильности и возможности хода
                 correct, take = self.v_moves(src_row, src_col, dest_row, dest_col)
                 if correct:
                     # Обработка перемещения шашки и обновление доски
@@ -852,14 +852,14 @@ class CheckersBoard:
                     else:
                         self.board[dest_row][dest_col] = self.board[src_row][src_col]
                         self.board[src_row][src_col] = 0
-                    if take:
+                    if take: # Если было выполнено взятие шашки, обновление игрового поля и отображение выбранной клетки
                         self.selected_piece = dest_row, dest_col
                         self.canvas.delete("all")
                         self.draw_board(self.current_player)
                         self.selected_rectangle = self.canvas.create_rectangle(dest_col * 50, dest_row * 50,
                                                                                dest_col * 50 + 50, dest_row * 50 + 50,
                                                                                outline="blue", width=2)
-                    else:
+                    else: # Если взятия не было, переключение текущего игрока и проверка завершения игры
                         self.switch_player()
                         self.selected_piece = None
                         self.canvas.delete("all")
@@ -867,11 +867,11 @@ class CheckersBoard:
                         self.need_attack = False
                         self.check_win()
                         self.attack(take, dest_row, dest_col)
-                else:
+                else: # Если ход недопустим, сброс выбранной шашки и обновление игрового поля
                     self.selected_piece = None
                     self.canvas.delete("all")
                     self.draw_board(self.current_player)
-            else:
+            else: # Если выбранная шашка не принадлежит текущему игроку, сброс выбора и обновление поля
                 self.selected_piece = None
                 self.canvas.delete("all")
                 self.draw_board(self.current_player)
@@ -896,11 +896,11 @@ if __name__ == "__main__":
         count = 0
         count2 = 0
         for i in range(8):
-            count += self.board[i].count(1)
-            count += self.board[i].count(3)
-            count2 += self.board[i].count(2)
-            count2 += self.board[i].count(4)
-        if count > 0 >= count2:
+            count += self.board[i].count(1) # Подсчет шашек первого игрока (черные)
+            count += self.board[i].count(3) # Подсчет дамок первого игрока (черные)
+            count2 += self.board[i].count(2) # Подсчет шашек второго игрока (белые)
+            count2 += self.board[i].count(4) # Подсчет дамок второго игрока (белые)
+        if count > 0 >= count2: # Проверка на победу одного из игроков или ничью 
             messagebox.showinfo("Уведомление", "Победа черных!")
             self.reset_board()
         elif count2 > 0 >= count:
@@ -909,7 +909,7 @@ if __name__ == "__main__":
         elif count == count2 == 1:
             messagebox.showinfo("Уведомление", "Игра закончилась ничьей!")
             self.reset_board()
-        else:
+        else: # Подсчет возможных ходов для каждого игрока
             count = 0
             count2 = 0
             for i in range(8):
@@ -941,7 +941,7 @@ if __name__ == "__main__":
                         except IndexError:
                             pass
             print(count, count2)
-            if count == 0:
+            if count == 0: # Проверка, остались ли у игроков ходы
                 messagebox.showinfo("Уведомление", "Победа белых!")
                 self.reset_board()
             if count2 == 0:
@@ -951,16 +951,16 @@ if __name__ == "__main__":
 
     def check_col(self, start, end, col):
         # Проверка на возможность хода по столбцу
-        count = 0
-        index = 0
+        count = 0 # Счетчик шашек в столбце
+        index = 0 # Индекс возможного хода
         correct_ind = end
         if start > end:
             start, end = end - 1, start - 1
         else:
             correct_ind -= 2
         for i in range(start + 1, end + 1):
-            if self.board[i][col] != 0:
-                if self.board[i][col] in self.current_player:
+            if self.board[i][col] != 0: # Если в клетке есть шашка
+                if self.board[i][col] in self.current_player: # Если шашка принадлежит текущему игроку
                     count += 1
                 count += 1
                 index = i + 1
@@ -981,23 +981,23 @@ if __name__ == "__main__":
             correct_ind += 2
             start, end = end, start
         for i in range(start + 1, end):
-            if self.board[row][i] != 0:
+            if self.board[row][i] != 0: # Если в клетке есть шашка
                 if self.board[row][i] in self.current_player:
-                    count += 1
-                index = i + 1
-                count += 1
+                    count += 1 # Увеличиваем счетчик шашек
+                index = i + 1 # Устанавливаем индекс возможного хода
+                count += 1 # Увеличиваем счетчик шашек
         if count == 0:
-            return [True, False]
+            return [True, False] # Возможный ход без взятия
         elif count == 1 and correct_ind == index - 1:
-            return [True, index]
+            return [True, index] # Возможный ход с взятием
         else:
-            return [False, False]
+            return [False, False] # Ход невозможен
 
     def main():
         # Основная функция запуска игры
-        root = Tk()
-        app = CheckersBoard(root)
-        root.mainloop()
+        root = Tk() # Создание корневого окна
+        app = CheckersBoard(root) # Создание экземпляра игры
+        root.mainloop() # Запуск основного цикла программы
 
 
     if __name__ == "__main__":
